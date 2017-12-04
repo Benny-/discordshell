@@ -8,7 +8,8 @@ environment:
   sdk: '>=2.0.0-dev.8'
 
 dependencies:
-  discord: "^0.15.0"
+  discord:
+    path: 'nyx'
 
 dev_dependencies:
   browser: ^0.10.0

@@ -8,7 +8,11 @@ html, body {
   font-family: 'Roboto', sans-serif;
 }
 
-#output {
+#status {
   padding: 20px;
   text-align: center;
+}
+
+header {
+
 }

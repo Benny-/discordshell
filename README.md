@@ -4,17 +4,21 @@ A pure web application to control discord bots. See what they see and chat as a 
 
 #### Requirements
 
-A [dart](https://www.dartlang.org/) 2.0.0-dev.8 SDK or higher.
+- A 2.0.0-dev.8 [dart](https://www.dartlang.org/) SDK or higher.
+- A [discord bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) which should be put in `web/settings.json`.
 
-A [discord bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) which should be put in `web/settings.json`.
+#### Dependencies
 
-#### Dependecies
+Execute the following commands in the project directory.
 
 ```sh
-pub get
 git clone https://github.com/Hackzzila/nyx.git
 cd "nyx"
 git reset --hard "1e9e7ff5812b5b7f72694aac4bf58bcb11877f15"
+```
+
+```sh
+pub get
 ```
 
 #### Run Development server

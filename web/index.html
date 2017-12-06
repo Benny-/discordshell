@@ -12,7 +12,6 @@
     <script defer src="main.dart" type="application/dart"></script>
     <script defer src="packages/browser/dart.js"></script>
 </head>
-
 <body>
 
   <header>
@@ -25,10 +24,28 @@
     Not running
   </div>
 
-  <div class="guilds-pane">
-    <template id="guild-template">
-      <h2 class="guild-name"></h2>
+  <div class="guild-panes">
+
+    <template id="guild-pane-template">
+      <div class="guild-pane">
+        <img>
+        <small class="guild-title"></small>
+      </div>
     </template>
+
+  </div>
+
+  <div class="chat-panes">
+
+    <template id="chat-pane-template">
+      <div class="chat-pane">
+        <div class="chat-messages"></div>
+        <form>
+          <textarea></textarea>
+        </form>
+      </div>
+    </template>
+
   </div>
 
 </body>

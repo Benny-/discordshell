@@ -31,63 +31,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:convert';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
-
-discord.Guild guild = null;
-Element statusHTML = querySelector('#status');
-Element guildsHTML = querySelector('.guild-panes');
-TemplateElement guildTemplateHTML = querySelector('template#guild-pane-template');
-
-void onAppSettings(String responseText) {
-  statusHTML.text = 'Running~';
-  Map parsedMap = JSON.decode(responseText);
-
-  discord.configureDiscordForBrowser();
-  discord.Client bot = new discord.Client(parsedMap['token']);
-
-  bot.onReady.listen((discord.ReadyEvent e) async {
-    statusHTML.text = 'Ready';
-    bot.guilds.forEach((key, guild) {
-        print("Init guild: " + guild.name);
-
-        DocumentFragment guildContainer = document.importNode(guildTemplateHTML.content, true);
-        ImageElement image = guildContainer.querySelector('img');
-        image.src = guild.iconURL();
-        Element title = guildContainer.querySelector('.guild-title');
-        title.text = guild.name;
-
-        guildsHTML.append(guildContainer);
-    });
-  });
-
-  bot.onGuildCreate.listen((discord.GuildCreateEvent e) {
-    print("Joined" + " " + e.guild.name);
-    guild = e.guild;
-  });
-
-  bot.onGuildUpdate.listen((discord.GuildUpdateEvent e) {
-    if(e.oldGuild.name != e.newGuild.name)
-    {
-      print("Guild" + " " + e.oldGuild.name + " " + "changed into" + " " + e.newGuild.name);
-    }
-    else
-    {
-      print("Guild" + " " + e.newGuild.name + " " + "changed");
-    }
-  });
-
-  bot.onGuildDelete.listen((discord.GuildDeleteEvent e) {
-    print("Left" + " " + e.guild.name);
-  });
-
-  bot.onMessage.listen((discord.MessageEvent e) {
-    print("Received msg on" + " " + e.message.guild.name + " : " + e.message.content);
-    print("Guild equal: " + ((guild == e.message.guild)?"True":"False") );
-  });
-}
+import 'package:discord_shell/src/DiscordShell.dart';
 
 void main() {
+  Element botsHTML = querySelector('#bots');
+  Element statusHTML = querySelector('#status');
+  TemplateElement discordBotTemplate = querySelector('template#discord-shell-template');
+
   statusHTML.text = "Fetching settings~";
-  HttpRequest.getString("settings.json").then(onAppSettings);
+  HttpRequest.getString("settings.json").then((responseText) {
+    Map parsedMap = JSON.decode(responseText);
+    statusHTML.text = "";
+
+    DocumentFragment botDom = document.importNode(discordBotTemplate.content, true);
+    DiscordShell discordShell = new DiscordShell(botDom, parsedMap['token']);
+    assert(botDom != null);
+    botsHTML.append(botDom);
+  });
 }

@@ -58,7 +58,15 @@ class DiscordShell {
           DocumentFragment guildContainer = document.importNode(guildTemplateHTML.content, true);
           assert(guildContainer != null);
           ImageElement image = guildContainer.querySelector('img');
-          image.src = guild.iconURL();
+          if(guild.icon == null)
+          {
+            image.src = "images/iconless.png";
+          }
+          else
+          {
+            // TODO: Request webp if user agent supports it.
+            image.src = guild.iconURL(format: 'png');
+          }
           Element title = guildContainer.querySelector('.guild-title');
           title.text = guild.name;
           guildsHTML.append(guildContainer);
@@ -68,6 +76,10 @@ class DiscordShell {
       ChatPane chatPane = new ChatPane(chatContainer, bot);
       chatsHTML.append(chatContainer);
       statusHTML.text = 'Ready';
+    });
+
+    bot.onHttpError.listen((e) {
+      statusHTML.text = "A HTTP error occured: " + e.response.statusText;
     });
 
     bot.onGuildCreate.listen((discord.GuildCreateEvent e) {

@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:convert';
-import 'package:discord_shell/src/DiscordShell.dart';
+import 'package:discordshell/src/DiscordShell.dart';
 
 void main() {
   Element controlsHTML = querySelector("#controls");
@@ -52,7 +52,7 @@ void main() {
   }).whenComplete(() {
     // Allow the user to add new bots.
     controlsHTML.style.display = '';
-    statusHTML.text = 'UwU';
+    statusHTML.text = 'Control discord bots';
 
     InputElement input = controlsHTML.querySelector("input");
     ButtonElement button = controlsHTML.querySelector("button");

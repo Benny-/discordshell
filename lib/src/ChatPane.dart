@@ -78,6 +78,7 @@ class ChatPane {
       this.textArea.value = '';
     });
 
+    chatButton.disabled = true;
     this.textArea.addEventListener('input', (e) {
       chatButton.disabled = this.textArea.value.length == 0;
     });

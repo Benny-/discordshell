@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="scaffolded-by" content="https://github.com/google/stagehand">
     <title>Discord Shell</title>
-    <link rel="stylesheet" href="DiscordShell.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/DiscordShell.css">
+    <link rel="stylesheet" href="css/index.css">
     <link rel="icon" href="favicon.ico">
     <script defer src="main.dart" type="application/dart"></script>
     <script defer src="packages/browser/dart.js"></script>
@@ -17,7 +17,7 @@
 
   <header>
     <a href="">
-      <img src="robocord.png" width="64" height="64">
+      <img src="images/robocord.png" width="64" height="64">
     </a>
   </header>
 
@@ -45,46 +45,52 @@
 
   <div id="controls" class="selfContainedBlock" style="display: none">
     <input placeholder="(bot token)" name="token">
-    <button type="button">Add bot</button>
+    <button type="button">Control bot</button>
   </div>
 
   <div id="bots" class="selfContainedBlock" style="display: none">
     <template id="discord-shell-template">
-      <div class="discord-shell-status">
-        Not running
-      </div>
+      <div class="discord-shell">
+        <div class="discord-shell-status">
+          Not running
+        </div>
 
-      <div class="guild-panes">
+        <div class="guild-panes">
 
-        <template name="guild-pane-template">
-          <div class="guild-pane">
-            <img>
-            <small class="guild-title"></small>
-          </div>
-        </template>
-
-      </div>
-
-      <div class="chat-panes">
-
-        <template name="chat-pane-template">
-          <div class="chat-pane">
-            <select class="channel-selector">
-              <option disabled selected value> -- select an channel -- </option>
-            </select>
-            <div class="chat-messages">
-              <template name="message-template">
-                <p class="message"></p>
-              </template>
+          <template name="guild-pane-template">
+            <div class="guild-pane">
+              <img class="guild-icon" height="128" width="128">
+              <small class="guild-title"></small>
             </div>
-            <form>
-              <textarea></textarea><button type=button>Chat</button>
-            </form>
-          </div>
-        </template>
+          </template>
 
+        </div>
+
+        <div class="chat-panes">
+          <template name="chat-pane-template">
+            <div class="chat-pane">
+              <select class="channel-selector">
+                <option disabled selected value> -- select an channel -- </option>
+              </select>
+              <div class="chat-messages">
+                <template name="message-template">
+                  <p class="message"></p>
+                </template>
+              </div>
+              <form>
+                <textarea></textarea><button type=button>Chat</button>
+              </form>
+            </div>
+          </template>
+        </div>
       </div>
     </template>
+  </div>
+
+  <div id="status" class="selfContainedBlock">
+    <small>
+      Bugs and features can be <a href="https://github.com/Benny-/discordshell/issues">reported on github</a>. This website has no relation with <a href="https://discordapp.com/">discordapp.com</a>.
+    </small>
   </div>
 
 </body>

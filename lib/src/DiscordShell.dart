@@ -32,43 +32,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:html';
 import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
+import 'ChatPane.dart';
 
 class DiscordShell {
   discord.Client bot;
 
-  discord.Guild guild = null; // For compare thingy
+  DiscordShell (DocumentFragment container, String token) {
+    Element statusHTML = container.querySelector('.discord-shell-status');
+    Element guildsHTML = container.querySelector('.guild-panes');
+    Element chatsHTML = container.querySelector('.chat-panes');
+    TemplateElement guildTemplateHTML = container.querySelector('template[name=guild-pane-template]');
+    TemplateElement chatTemplateHTML = container.querySelector('template[name=chat-pane-template]');
 
-  DiscordShell (DocumentFragment htmlShell, String token) {
-    Element statusHTML = htmlShell.querySelector('.discord-shell-status');
-    Element guildsHTML = htmlShell.querySelector('.guild-panes');
-    TemplateElement guildTemplateHTML = htmlShell.querySelector('template[name=guild-pane-template]');
     assert(statusHTML != null);
     assert(guildsHTML != null);
     assert(guildTemplateHTML != null);
+    assert(chatTemplateHTML != null);
 
     statusHTML.text = 'Running~';
-
     discord.configureDiscordForBrowser();
     bot = new discord.Client(token);
 
     bot.onReady.listen((discord.ReadyEvent e) async {
       bot.guilds.forEach((key, guild) {
-          print("Init guild: " + guild.name);
-
           DocumentFragment guildContainer = document.importNode(guildTemplateHTML.content, true);
           assert(guildContainer != null);
           ImageElement image = guildContainer.querySelector('img');
           image.src = guild.iconURL();
           Element title = guildContainer.querySelector('.guild-title');
           title.text = guild.name;
-
           guildsHTML.append(guildContainer);
       });
+
+      DocumentFragment chatContainer = document.importNode(chatTemplateHTML.content, true);
+      ChatPane chatPane = new ChatPane(chatContainer, bot);
+      chatsHTML.append(chatContainer);
     });
 
     bot.onGuildCreate.listen((discord.GuildCreateEvent e) {
       print("Joined" + " " + e.guild.name);
-      guild = e.guild;
     });
 
     bot.onGuildUpdate.listen((discord.GuildUpdateEvent e) {
@@ -84,11 +86,6 @@ class DiscordShell {
 
     bot.onGuildDelete.listen((discord.GuildDeleteEvent e) {
       print("Left" + " " + e.guild.name);
-    });
-
-    bot.onMessage.listen((discord.MessageEvent e) {
-      print("Received msg on" + " " + e.message.guild.name + " : " + e.message.content);
-      print("Guild equal: " + ((guild == e.message.guild)?"True":"False") );
     });
   }
 

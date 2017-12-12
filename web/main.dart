@@ -34,6 +34,7 @@ import 'dart:convert';
 import 'package:discord_shell/src/DiscordShell.dart';
 
 void main() {
+  Element controlsHTML = querySelector("#controls");
   Element botsHTML = querySelector('#bots');
   Element statusHTML = querySelector('#status');
   TemplateElement discordBotTemplate = querySelector('template#discord-shell-template');
@@ -41,11 +42,32 @@ void main() {
   statusHTML.text = "Fetching settings~";
   HttpRequest.getString("settings.json").then((responseText) {
     Map parsedMap = JSON.decode(responseText);
-    statusHTML.text = "";
-
     DocumentFragment botDom = document.importNode(discordBotTemplate.content, true);
     DiscordShell discordShell = new DiscordShell(botDom, parsedMap['token']);
     assert(botDom != null);
     botsHTML.append(botDom);
+    botsHTML.style.display = '';
+  }).catchError((e) {
+    print("No settings file found. That is okay, the settings file is used to immediatly login as a bot. You can still add bots on your own.");
+  }).whenComplete(() {
+    // Allow the user to add new bots.
+    controlsHTML.style.display = '';
+    statusHTML.text = 'UwU';
+
+    InputElement input = controlsHTML.querySelector("input");
+    ButtonElement button = controlsHTML.querySelector("button");
+
+    button.disabled = true;
+    button.addEventListener('click', (e) {
+      DocumentFragment botDom = document.importNode(discordBotTemplate.content, true);
+      DiscordShell discordShell = new DiscordShell(botDom, input.value);
+      botsHTML.append(botDom);
+      botsHTML.style.display = '';
+    });
+
+    input.addEventListener('input', (e) {
+      button.disabled = input.value.length == 0;
+    });
+
   });
 }

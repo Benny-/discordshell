@@ -16,30 +16,39 @@
 <body>
 
   <header>
-    <a href="/">
-      Home
+    <a href="">
+      <img src="robocord.png" width="64" height="64">
     </a>
   </header>
 
   <!--[if lte IE 9]>
+  <div class="selfContainedBlock">
     <p class="browserupgrade">
       You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.
     </p>
+  </div>
   <![endif]-->
 
   <noscript>
-    <p>
-      For full functionality of this site it is necessary to enable JavaScript.
-      Here are the <a href="https://www.enable-javascript.com/" target="_blank">
-      instructions how to enable JavaScript in your web browser</a>.
-    </p>
+    <div class="selfContainedBlock">
+      <p>
+        For full functionality of this site it is necessary to enable JavaScript.
+        Here are the <a href="https://www.enable-javascript.com/" target="_blank">
+        instructions how to enable JavaScript in your web browser</a>.
+      </p>
+    </div>
   </noscript>
 
-  <div id="status">
+  <div id="status" class="selfContainedBlock">
     Not running
   </div>
 
-  <div id="bots">
+  <div id="controls" class="selfContainedBlock" style="display: none">
+    <input placeholder="(bot token)" name="token">
+    <button type="button">Add bot</button>
+  </div>
+
+  <div id="bots" class="selfContainedBlock" style="display: none">
     <template id="discord-shell-template">
       <div class="discord-shell-status">
         Not running

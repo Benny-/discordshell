@@ -49,7 +49,7 @@ class DiscordShell {
     assert(guildTemplateHTML != null);
     assert(chatTemplateHTML != null);
 
-    statusHTML.text = 'Running~';
+    statusHTML.text = 'Loading bot~';
     discord.configureDiscordForBrowser();
     bot = new discord.Client(token);
 
@@ -67,6 +67,7 @@ class DiscordShell {
       DocumentFragment chatContainer = document.importNode(chatTemplateHTML.content, true);
       ChatPane chatPane = new ChatPane(chatContainer, bot);
       chatsHTML.append(chatContainer);
+      statusHTML.text = 'Ready';
     });
 
     bot.onGuildCreate.listen((discord.GuildCreateEvent e) {

@@ -41,7 +41,7 @@ class ChatPane {
   final TemplateElement messageTemplate;
   final discord.Client bot;
 
-  final Map<OptionElement, discord.TextChannel> optionToChannel = new Map<OptionElement, discord.GuildChannel>();
+  final Map<OptionElement, discord.TextChannel> optionToChannel = new Map<OptionElement, discord.TextChannel>();
 
   discord.TextChannel selectedChannel = null;
 
@@ -68,9 +68,18 @@ class ChatPane {
       }
     });
 
-    InputElement submitButton = container.querySelector("input[type=submit]");
-    submitButton.addEventListener('click', (e) {
-      this.textArea.text = '';
+    ButtonElement chatButton = container.querySelector("button");
+    chatButton.addEventListener('click', (e) {
+      String text = this.textArea.value;
+      if(text.length > 0)
+      {
+        selectedChannel.send(content: text);
+      }
+      this.textArea.value = '';
+    });
+
+    this.textArea.addEventListener('input', (e) {
+      chatButton.disabled = this.textArea.value.length == 0;
     });
 
     channelSelector.addEventListener('change', (e) {

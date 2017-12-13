@@ -76,6 +76,7 @@ class ChatPane {
         selectedChannel.send(content: text);
       }
       this.textArea.value = '';
+      chatButton.disabled = true;
     });
 
     chatButton.disabled = true;

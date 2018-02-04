@@ -102,7 +102,7 @@ class ChatPane {
 
         List<discord.Message> list = new List<discord.Message>();
 
-        for (const msg in messages.values)
+        for (final msg in messages.values)
         {
           list.add(msg);
         }

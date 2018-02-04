@@ -56,14 +56,12 @@
         </div>
 
         <div class="guild-panes">
-
           <template name="guild-pane-template">
             <div class="guild-pane">
               <img class="guild-icon" height="128" width="128">
               <small class="guild-title"></small>
             </div>
           </template>
-
         </div>
 
         <div class="chat-panes">
@@ -74,7 +72,11 @@
               </select>
               <div class="chat-messages">
                 <template name="message-template">
-                  <p class="message"></p>
+                  <div class="message">
+                    <time class="timestamp"></time>
+                    <div class="user-name"></div>
+                    <div class="content"></div>
+                  </div>
                 </template>
               </div>
               <form>

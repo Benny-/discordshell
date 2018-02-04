@@ -51,7 +51,7 @@ class DiscordShell {
 
     statusHTML.text = 'Loading bot~';
     discord.configureDiscordForBrowser();
-    bot = new discord.Client(token);
+    bot = new discord.Client(token, new discord.ClientOptions(autoShard: false, forceFetchMembers: false));
 
     bot.onReady.listen((discord.ReadyEvent e) async {
       bot.guilds.forEach((key, guild) {

@@ -57,7 +57,7 @@ void main() {
     InputElement input = controlsHTML.querySelector("input");
     ButtonElement button = controlsHTML.querySelector("button");
 
-    button.disabled = true;
+    button.disabled = input.value.length == 0;
     button.addEventListener('click', (e) {
       DocumentFragment botDom = document.importNode(discordBotTemplate.content, true);
       DiscordShell discordShell = new DiscordShell(botDom, input.value);

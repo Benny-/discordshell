@@ -59,7 +59,8 @@ class ChatPane {
       if(e.message.channel == this.selectedChannel)
       {
         DocumentFragment msg = document.importNode(messageTemplate.content, true);
-        msg.querySelector(".message").text = e.message.content;
+        msg.querySelector(".user-name").text = e.message.author.username;
+        msg.querySelector(".content").text = e.message.content;
         messages.append(msg);
       }
       else
@@ -85,15 +86,38 @@ class ChatPane {
     });
 
     channelSelector.addEventListener('change', (e) {
-      discord.GuildChannel channel = optionToChannel[channelSelector.selectedOptions.first];
-      if(channel != selectedChannel)
+      discord.TextChannel channel = optionToChannel[channelSelector.selectedOptions.first];
+
+      if(channel == selectedChannel)
       {
-        for(Element msg in messages.querySelectorAll(".message"))
+        return;
+      }
+
+      channel.getMessages().then((messages) {
+        for(Element msg in this.messages.querySelectorAll(".message"))
         {
           msg.remove();
         }
-      }
-      selectedChannel = channel;
+        selectedChannel = channel;
+
+        List<discord.Message> list = new List<discord.Message>();
+
+        for (const msg in messages.values)
+        {
+          list.add(msg);
+        }
+
+        list.sort((a, b) {
+          return a.timestamp.compareTo(b.timestamp);
+        });
+
+        list.forEach((message) {
+          DocumentFragment msg = document.importNode(messageTemplate.content, true);
+          msg.querySelector(".user-name").text = message.author.username;
+          msg.querySelector(".content").text = message.content;
+          this.messages.append(msg);
+        });
+      });
     });
   }
 

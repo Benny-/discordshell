@@ -34,3 +34,13 @@ img.guild-icon {
   margin-top: 0.1em;
   margin-bottom: 0.1em;
 }
+
+.message > .user-name {
+  width: 12em;
+  height: 100%;
+  display: inline-block;
+}
+
+.message > .content {
+  display: inline-block;
+}

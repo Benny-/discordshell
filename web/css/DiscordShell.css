@@ -35,6 +35,11 @@ img.guild-icon {
   margin-bottom: 0.1em;
 }
 
+img.user-avatar {
+  width: 1em;
+  height: 1em;
+}
+
 .message > .user-name {
   width: 12em;
   height: 100%;
@@ -43,4 +48,9 @@ img.guild-icon {
 
 .message > .content {
   display: inline-block;
+}
+
+.message > .content > p {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
 }

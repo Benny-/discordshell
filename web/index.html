@@ -2,103 +2,109 @@
 
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="scaffolded-by" content="https://github.com/google/stagehand">
-    <title>Discord Shell</title>
-    <link rel="stylesheet" href="css/DiscordShell.css">
-    <link rel="stylesheet" href="css/index.css">
-    <link rel="icon" href="favicon.ico">
-    <script defer src="main.dart" type="application/dart"></script>
-    <script defer src="packages/browser/dart.js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord Shell</title>
+  <meta name="Description" content="Control a discord bot. See what a bot can see and chat as one.">
+  <link rel="stylesheet" href="css/DiscordShell.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="icon" href="favicon.ico">
+  <script defer src="main.dart" type="application/dart"></script>
+  <script defer src="packages/browser/dart.js"></script>
 </head>
 <body>
 
-  <header>
-    <a href="">
-      <img src="images/robocord.png" width="64" height="64">
-    </a>
-  </header>
+<header>
+  <a href="">
+    <img src="images/robocord.png" width="64" height="64">
+  </a>
+</header>
 
-  <!--[if lte IE 9]>
+<!--[if lte IE 9]>
+<div class="selfContainedBlock">
+  <p class="browserupgrade">
+    You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your
+    browser</a> to improve your experience and security.
+  </p>
+</div>
+<![endif]-->
+
+<noscript>
   <div class="selfContainedBlock">
-    <p class="browserupgrade">
-      You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.
+    <p>
+      For full functionality of this site it is necessary to enable JavaScript.
+      Here are the <a href="https://www.enable-javascript.com/" target="_blank">
+      instructions how to enable JavaScript in your web browser</a>.
     </p>
   </div>
-  <![endif]-->
+</noscript>
 
-  <noscript>
-    <div class="selfContainedBlock">
-      <p>
-        For full functionality of this site it is necessary to enable JavaScript.
-        Here are the <a href="https://www.enable-javascript.com/" target="_blank">
-        instructions how to enable JavaScript in your web browser</a>.
-      </p>
-    </div>
-  </noscript>
+<div id="status" class="selfContainedBlock">
+  Not running
+</div>
 
-  <div id="status" class="selfContainedBlock">
-    Not running
-  </div>
+<div id="controls" class="selfContainedBlock" style="display: none">
+  <input placeholder="(bot token)" name="token">
+  <button type="button">Control bot</button>
+</div>
 
-  <div id="controls" class="selfContainedBlock" style="display: none">
-    <input placeholder="(bot token)" name="token">
-    <button type="button">Control bot</button>
-  </div>
-
-  <div id="bots" class="selfContainedBlock" style="display: none">
-    <template id="discord-shell-template">
-      <div class="discord-shell">
-        <div class="discord-shell-status">
-          Not running
-        </div>
-
-        <div class="guild-panes">
-          <template name="guild-pane-template">
-            <div class="guild-pane">
-              <img class="guild-icon" height="128" width="128">
-              <small class="guild-title"></small>
-            </div>
-          </template>
-        </div>
-
-        <div class="chat-panes">
-          <template name="chat-pane-template">
-            <div class="chat-pane">
-              <select class="channel-selector">
-                <option disabled selected value> -- select an channel -- </option>
-              </select>
-              <div class="chat-messages">
-                <template name="message-template">
-                  <div class="message">
-                    <time class="timestamp"></time>
-                    <div class="user-name"></div>
-                    <div class="content"></div>
-                  </div>
-                </template>
-              </div>
-              <form>
-                <textarea></textarea><button type=button>Chat</button>
-              </form>
-            </div>
-          </template>
-        </div>
+<div id="bots" class="selfContainedBlock" style="display: none">
+  <template id="discord-shell-template">
+    <div class="discord-shell">
+      <div class="discord-shell-status">
+        Not running
       </div>
-    </template>
-  </div>
 
-  <div id="status" class="selfContainedBlock">
+      <div class="guild-panes">
+        <template name="guild-pane-template">
+          <div class="guild-pane">
+            <img class="guild-icon" height="128" width="128">
+            <small class="guild-title"></small>
+          </div>
+        </template>
+      </div>
 
-    <small>
-      All <a href="https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">discord markdown</a> is supported for sending.
-    </small>
+      <div class="chat-panes">
+        <template name="chat-pane-template">
+          <div class="chat-pane">
+            <select class="channel-selector">
+              <option disabled selected value> -- select an channel --</option>
+            </select>
+            <div class="chat-messages">
+              <template name="message-template">
+                <div class="message">
+                  <time class="timestamp"></time>
+                  <img class="user-avatar" width="128" height="128">
+                  <small class="user-name"></small>
+                  <div class="content"></div>
+                </div>
+              </template>
+            </div>
+            <form>
+              <textarea></textarea>
+              <button type=button>Chat</button>
+            </form>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+</div>
 
-    <small>
-      Bugs and features can be <a href="https://github.com/Benny-/discordshell/issues">reported on github</a>. This website has no relation with <a href="https://discordapp.com/">discordapp.com</a>.
-    </small>
-  </div>
+<div class="selfContainedBlock">
+
+  <small>
+    All <a
+          href="https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">discord
+    markdown</a> is supported for sending.
+  </small>
+
+  <small>
+    Bugs and features can be <a href="https://github.com/Benny-/discordshell/issues">reported on github</a>. This
+    website has no relation with <a href="https://discordapp.com/">discordapp.com</a>.
+  </small>
+</div>
 
 </body>
 </html>

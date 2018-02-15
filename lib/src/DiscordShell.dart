@@ -73,7 +73,14 @@ class DiscordShell {
       });
 
       DocumentFragment chatContainer = document.importNode(chatTemplateHTML.content, true);
-      ChatPane chatPane = new ChatPane(chatContainer, bot);
+      NodeValidatorBuilder nodeValidatorBuilder = new NodeValidatorBuilder();
+      nodeValidatorBuilder.allowTextElements();
+      nodeValidatorBuilder.allowImages();
+      nodeValidatorBuilder.allowSvg();
+      nodeValidatorBuilder.allowNavigation();
+      nodeValidatorBuilder.allowHtml5();
+      nodeValidatorBuilder.allowInlineStyles();
+      ChatPane chatPane = new ChatPane(chatContainer, nodeValidatorBuilder, bot);
       chatsHTML.append(chatContainer);
       statusHTML.text = 'Ready';
     });

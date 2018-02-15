@@ -8,6 +8,7 @@ environment:
   sdk: '>=2.0.0-dev.8'
 
 dependencies:
+  markdown: "^1.1.0"
   discord:
     path: 'nyx'
 

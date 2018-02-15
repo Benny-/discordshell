@@ -32,20 +32,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:html';
 import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
+import 'package:markdown/markdown.dart';
 
 class ChatPane {
 
   final SelectElement channelSelector;
-  final Element messages;
+  final DivElement messages;
   final TextAreaElement textArea;
   final TemplateElement messageTemplate;
   final discord.Client bot;
+  final NodeValidator nodeValidator;
 
   final Map<OptionElement, discord.TextChannel> optionToChannel = new Map<OptionElement, discord.TextChannel>();
 
   discord.TextChannel selectedChannel = null;
 
-  ChatPane (DocumentFragment container, this.bot) :
+  ChatPane (DocumentFragment container, this.nodeValidator, this.bot) :
     channelSelector = container.querySelector("select.channel-selector"),
     messages = container.querySelector(".chat-messages"),
     textArea = container.querySelector("textarea"),
@@ -58,10 +60,7 @@ class ChatPane {
       assert(e.message.channel != null);
       if(e.message.channel == this.selectedChannel)
       {
-        DocumentFragment msg = document.importNode(messageTemplate.content, true);
-        msg.querySelector(".user-name").text = e.message.author.username;
-        msg.querySelector(".content").text = e.message.content;
-        messages.append(msg);
+        this.addMessage(e.message);
       }
       else
       {
@@ -94,7 +93,7 @@ class ChatPane {
       }
 
       channel.getMessages().then((messages) {
-        for(Element msg in this.messages.querySelectorAll(".message"))
+        for(DivElement msg in this.messages.querySelectorAll(".message"))
         {
           msg.remove();
         }
@@ -111,14 +110,37 @@ class ChatPane {
           return a.timestamp.compareTo(b.timestamp);
         });
 
-        list.forEach((message) {
-          DocumentFragment msg = document.importNode(messageTemplate.content, true);
-          msg.querySelector(".user-name").text = message.author.username;
-          msg.querySelector(".content").text = message.content;
-          this.messages.append(msg);
+        list.forEach((msg) {
+          this.addMessage(msg);
         });
       });
     });
+  }
+
+  addMessage(discord.Message msg) {
+    DocumentFragment msgFragment = document.importNode(messageTemplate.content, true);
+    ImageElement avatar = msgFragment.querySelector(".user-avatar");
+    HtmlElement username = msgFragment.querySelector(".user-name");
+    DivElement content = msgFragment.querySelector(".content");
+    if(msg.author.avatar == null)
+    {
+      avatar.src = "images/iconless.png";
+    }
+    else
+    {
+      // TODO: Request webp if user agent supports it.
+      avatar.src = msg.author.avatarURL(format: 'png', size: 128);
+    }
+    username.title = msg.author.id;
+    username.text = msg.author.username;
+    content.innerHtml = markdownToHtml(msg.content);
+    content.title = msg.id;
+    if(!this.nodeValidator.allowsElement(content))
+    {
+      msgFragment.querySelector(".message").style.backgroundColor = "red";
+      content.text = "<<Remote code execution protection has prevented this message from being displayed>>";
+    }
+    messages.append(msgFragment);
   }
 
   rebuildChannelSelector() {

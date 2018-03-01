@@ -81,6 +81,7 @@ class ChatPane {
 
     chatButton.disabled = true;
     this.textArea.addEventListener('input', (e) {
+      selectedChannel.startTyping();
       chatButton.disabled = this.textArea.value.length == 0;
     });
 

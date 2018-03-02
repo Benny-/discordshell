@@ -30,9 +30,34 @@ img.guild-icon {
   border-style: solid;
 }
 
+.users-list{
+  border-radius: 0.5em;
+  margin: 0.25em;
+  padding: 0.25em;
+  border: #656e90;
+  border-style: solid;
+}
+
 .message {
   margin-top: 0.1em;
   margin-bottom: 0.1em;
+}
+
+.useritem{
+  height: 3em;
+  width: 10em;
+  margin-right: 0;
+}
+
+.user-list-name{
+  width: 7.2em;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.user-list-avatar{
+  height: 3em;
+  width: 3em;
 }
 
 img.user-avatar {

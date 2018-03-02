@@ -40,6 +40,8 @@ class ChatPane {
   final DivElement messages;
   final TextAreaElement textArea;
   final TemplateElement messageTemplate;
+  final TemplateElement userTemplate;
+  final DivElement userslist;
   final discord.Client bot;
   final NodeValidator nodeValidator;
 
@@ -50,7 +52,9 @@ class ChatPane {
   ChatPane (DocumentFragment container, this.nodeValidator, this.bot) :
     channelSelector = container.querySelector("select.channel-selector"),
     messages = container.querySelector(".chat-messages"),
+    userslist = container.querySelector(".users-list"),
     textArea = container.querySelector("textarea"),
+    userTemplate = container.querySelector("template[name=user-template]"),
     messageTemplate = container.querySelector("template[name=message-template]")
   {
     this.rebuildChannelSelector();
@@ -81,7 +85,6 @@ class ChatPane {
 
     chatButton.disabled = true;
     this.textArea.addEventListener('input', (e) {
-      selectedChannel.startTyping();
       chatButton.disabled = this.textArea.value.length == 0;
     });
 
@@ -98,6 +101,22 @@ class ChatPane {
         {
           msg.remove();
         }
+        List<discord.Member> userlist = new List<discord.Member>();
+        //Check if different server
+        if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id){
+          for(DivElement user in this.userslist.querySelectorAll(".useritem"))//remove current userlist
+        {
+          user.remove();
+        }
+          for (final users in channel.guild.members.values) //put users into list
+          {
+            userlist.add(users);
+          }
+          userlist.forEach((user) { //add users from object list to display list
+          this.adduser(user);
+        });
+        }
+        
         selectedChannel = channel;
 
         List<discord.Message> list = new List<discord.Message>();
@@ -116,6 +135,24 @@ class ChatPane {
         });
       });
     });
+  }
+
+  adduser(discord.Member user) {
+    DocumentFragment userFragment = document.importNode(userTemplate.content, true);
+    ImageElement avatar = userFragment.querySelector(".user-list-avatar");
+    HtmlElement username = userFragment.querySelector(".user-list-name");
+  if(user.avatar == null)
+    {
+      avatar.src = "images/iconless.png";
+    }
+    else
+    {
+      // TODO: Request webp if user agent supports it.
+      avatar.src = user.avatarURL(format: 'png', size: 128);
+    }
+    username.title = user.id;
+    username.text = user.username;
+    userslist.append(userFragment);
   }
 
   addMessage(discord.Message msg) {

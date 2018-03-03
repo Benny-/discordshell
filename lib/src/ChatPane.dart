@@ -91,16 +91,20 @@ class ChatPane {
   bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
     if(e.newMember.guild==selectedChannel.guild){
       DivElement userlistitem = document.querySelector(".users-list");
-      ImageElement avatar = userlistitem.querySelector("[src='"+e.newMember.avatarURL(format: 'png', size: 128)+"']");
+      HtmlElement avatar = userlistitem.querySelector("[title='"+e.newMember.id+"']");
+      ImageElement picture = avatar.parent.querySelector(".user-list-avatar");
       switch (e.newMember.status){
       case "dnd":
-      avatar.style.borderColor="red";
+      picture.style.borderColor="red";
       break;
       case "online":
-      avatar.style.borderColor="green";
+      picture.style.borderColor="green";
       break;
       case "idle":
-      avatar.style.borderColor="orange";
+      picture.style.borderColor="orange";
+      break;
+      case "offline":
+      picture.style.borderColor="grey";
       break;
     }
     }

@@ -87,6 +87,24 @@ class ChatPane {
     this.textArea.addEventListener('input', (e) {
       chatButton.disabled = this.textArea.value.length == 0;
     });
+  
+  bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
+    if(e.newMember.guild==selectedChannel.guild){
+      DivElement userlistitem = document.querySelector(".users-list");
+      ImageElement avatar = userlistitem.querySelector("[src='"+e.newMember.avatarURL(format: 'png', size: 128)+"']");
+      switch (e.newMember.status){
+      case "dnd":
+      avatar.style.borderColor="red";
+      break;
+      case "online":
+      avatar.style.borderColor="green";
+      break;
+      case "idle":
+      avatar.style.borderColor="orange";
+      break;
+    }
+    }
+  });
 
     channelSelector.addEventListener('change', (e) {
       discord.TextChannel channel = optionToChannel[channelSelector.selectedOptions.first];
@@ -116,7 +134,6 @@ class ChatPane {
           this.adduser(user);
         });
         }
-        
         selectedChannel = channel;
 
         List<discord.Message> list = new List<discord.Message>();
@@ -137,6 +154,7 @@ class ChatPane {
     });
   }
 
+
   adduser(discord.Member user) {
     DocumentFragment userFragment = document.importNode(userTemplate.content, true);
     ImageElement avatar = userFragment.querySelector(".user-list-avatar");
@@ -152,6 +170,18 @@ class ChatPane {
     }
     username.title = user.id;
     username.text = user.username;
+    switch (user.status){
+      case "dnd":
+      avatar.style.borderColor="red";
+      break;
+      case "online":
+      avatar.style.borderColor="green";
+      break;
+      case "idle":
+      avatar.style.borderColor="orange";
+      break;
+    }
+    
     userslist.append(userFragment);
   }
 

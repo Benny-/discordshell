@@ -26,6 +26,30 @@ img.guild-icon {
   display: flex;
 }
 
+.online{
+  height: 3em;
+  width: 3em;
+  border: 0.1em solid green;
+}
+
+.offline{
+  height: 3em;
+  width: 3em;
+  border: 0.1em solid grey;
+}
+
+.dnd{
+  height: 3em;
+  width: 3em;
+  border: 0.1em solid red;
+}
+
+.idle{
+  height: 3em;
+  width: 3em;
+  border: 0.1em solid orange;
+}
+
 .chat-pane {
   border-radius: 0.5em;
   margin: 0.25em;
@@ -60,12 +84,6 @@ img.guild-icon {
   width: 7.2em;
   overflow: hidden;
   display: inline-block;
-}
-
-.user-list-avatar{
-  height: 3em;
-  width: 3em;
-  border: 0.1em solid grey;
 }
 
 img.user-avatar {

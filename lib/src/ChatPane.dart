@@ -92,21 +92,8 @@ class ChatPane {
     if(e.newMember.guild==selectedChannel.guild){
       DivElement userlistitem = document.querySelector(".users-list");
       HtmlElement avatar = userlistitem.querySelector("[title='"+e.newMember.id+"']");
-      ImageElement picture = avatar.parent.querySelector(".user-list-avatar");
-      switch (e.newMember.status){
-      case "dnd":
-      picture.style.borderColor="red";
-      break;
-      case "online":
-      picture.style.borderColor="green";
-      break;
-      case "idle":
-      picture.style.borderColor="orange";
-      break;
-      case "offline":
-      picture.style.borderColor="grey";
-      break;
-    }
+      ImageElement picture = avatar.parent.querySelector("img");
+      picture.className=e.newMember.status;
     }
   });
 
@@ -161,7 +148,7 @@ class ChatPane {
 
   adduser(discord.Member user) {
     DocumentFragment userFragment = document.importNode(userTemplate.content, true);
-    ImageElement avatar = userFragment.querySelector(".user-list-avatar");
+    ImageElement avatar = userFragment.querySelector(".offline");
     HtmlElement username = userFragment.querySelector(".user-list-name");
   if(user.avatar == null)
     {
@@ -174,17 +161,12 @@ class ChatPane {
     }
     username.title = user.id;
     username.text = user.username;
-    switch (user.status){
-      case "dnd":
-      avatar.style.borderColor="red";
-      break;
-      case "online":
-      avatar.style.borderColor="green";
-      break;
-      case "idle":
-      avatar.style.borderColor="orange";
-      break;
-    }
+    if (user.status==null){
+      avatar.className="offline";
+      }
+      else{
+        avatar.className=user.status;
+      }
     
     userslist.append(userFragment);
   }

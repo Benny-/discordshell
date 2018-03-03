@@ -26,6 +26,22 @@ img.guild-icon {
   display: flex;
 }
 
+#online{
+  border-color: green;
+}
+
+#offline{
+  border-color: grey;
+}
+
+#dnd{
+  border-color: red;
+}
+
+#idle{
+  border-color: orange;
+}
+
 .chat-pane {
   border-radius: 0.5em;
   margin: 0.25em;

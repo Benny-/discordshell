@@ -90,8 +90,7 @@ class ChatPane {
   
   bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
     if(e.newMember.guild==selectedChannel.guild){
-      DivElement userlistitem = document.querySelector(".users-list");
-      HtmlElement avatar = userlistitem.querySelector("[title='"+e.newMember.id+"']");
+      HtmlElement avatar = userslist.querySelector("[title='"+e.newMember.id+"']");
       ImageElement picture = avatar.parent.querySelector("img");
       picture.className=e.newMember.status;
     }
@@ -106,17 +105,11 @@ class ChatPane {
       }
 
       channel.getMessages().then((messages) {
-        for(DivElement msg in this.messages.querySelectorAll(".message"))
-        {
-          msg.remove();
-        }
+        this.messages.innerHtml="";
         List<discord.Member> userlist = new List<discord.Member>();
         //Check if different server
         if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id){
-          for(DivElement user in this.userslist.querySelectorAll(".useritem"))//remove current userlist
-        {
-          user.remove();
-        }
+        this.userslist.innerHtml="";
           for (final users in channel.guild.members.values) //put users into list
           {
             userlist.add(users);

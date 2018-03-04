@@ -44,6 +44,7 @@ class ChatPane {
   final DivElement userslist;
   final discord.Client bot;
   final NodeValidator nodeValidator;
+  bool typingBusy = false;
 
   final Map<OptionElement, discord.TextChannel> optionToChannel = new Map<OptionElement, discord.TextChannel>();
 
@@ -86,10 +87,17 @@ class ChatPane {
     chatButton.disabled = true;
     this.textArea.addEventListener('input', (e) {
       chatButton.disabled = this.textArea.value.length == 0;
+      if(this.textArea.value.length != 0 && !this.typingBusy)
+      {
+        this.typingBusy = true;
+        this.selectedChannel.startTyping().then((result) {
+          this.typingBusy = false;
+        });
+      }
     });
   
   bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
-    if(e.newMember.guild==selectedChannel.guild){
+    if(selectedChannel != null && e.newMember.guild==selectedChannel.guild){
       DivElement userlistitem = document.querySelector(".users-list");
       HtmlElement avatar = userlistitem.querySelector("[title='"+e.newMember.id+"']");
       ImageElement picture = avatar.parent.querySelector("img");

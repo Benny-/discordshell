@@ -139,11 +139,10 @@ class ChatPane {
   }
 
 
-  adduser(discord.Member user) async{
+  adduser(discord.Member user) {
     DocumentFragment userFragment = document.importNode(userTemplate.content, true);
     ImageElement avatar = userFragment.querySelector(".offline");
     HtmlElement username = userFragment.querySelector(".user-list-name");
-
   if(user.avatar == null)
     {
       avatar.src = "images/iconless.png";

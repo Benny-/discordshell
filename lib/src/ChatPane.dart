@@ -98,9 +98,9 @@ class ChatPane {
   
   bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
     if(selectedChannel != null && e.newMember.guild==selectedChannel.guild){
-      HtmlElement avatar = userslist.querySelector("[title='"+e.newMember.id+"']");
-      ImageElement picture = avatar.parent.querySelector("img");
-      picture.className=e.newMember.status;
+      HtmlElement useritem = userslist.querySelector("[title='"+e.newMember.id+"']");
+      ImageElement avatar = useritem.parent.querySelector("img");
+      avatar.className=e.newMember.status;
     }
   });
 
@@ -149,7 +149,6 @@ class ChatPane {
     });
   }
 
-
   adduser(discord.Member user) {
     DocumentFragment userFragment = document.importNode(userTemplate.content, true);
     DivElement useritem = userFragment.querySelector(".useritem");
@@ -162,7 +161,7 @@ class ChatPane {
       // TODO: Request webp if user agent supports it.
       avatar.src = user.avatarURL(format: 'png', size: 128);
     }
-    username.title = user.id;
+    useritem.title = user.id;
     username.text = user.username;
     if (user.status==null) {
       avatar.className="offline";

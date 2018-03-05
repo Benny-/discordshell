@@ -98,8 +98,7 @@ class ChatPane {
   
   bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
     if(selectedChannel != null && e.newMember.guild==selectedChannel.guild){
-      DivElement userlistitem = document.querySelector(".users-list");
-      HtmlElement avatar = userlistitem.querySelector("[title='"+e.newMember.id+"']");
+      HtmlElement avatar = userslist.querySelector("[title='"+e.newMember.id+"']");
       ImageElement picture = avatar.parent.querySelector("img");
       picture.className=e.newMember.status;
     }
@@ -114,24 +113,24 @@ class ChatPane {
       }
 
       channel.getMessages().then((messages) {
-        for(DivElement msg in this.messages.querySelectorAll(".message"))
+        while(this.messages.firstChild != null)
         {
-          msg.remove();
+          this.messages.firstChild.remove();
         }
         List<discord.Member> userlist = new List<discord.Member>();
         //Check if different server
-        if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id){
-          for(DivElement user in this.userslist.querySelectorAll(".useritem"))//remove current userlist
-        {
-          user.remove();
-        }
+        if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id) {
+          while(this.userslist.firstChild != null)//remove current userlist
+          {
+            this.userslist.firstChild.remove();
+          }
           for (final users in channel.guild.members.values) //put users into list
           {
             userlist.add(users);
           }
           userlist.forEach((user) { //add users from object list to display list
-          this.adduser(user);
-        });
+            this.adduser(user);
+          });
         }
         selectedChannel = channel;
 
@@ -156,25 +155,23 @@ class ChatPane {
 
   adduser(discord.Member user) {
     DocumentFragment userFragment = document.importNode(userTemplate.content, true);
+    DivElement useritem = userFragment.querySelector(".useritem");
     ImageElement avatar = userFragment.querySelector(".offline");
     HtmlElement username = userFragment.querySelector(".user-list-name");
-  if(user.avatar == null)
+    if(user.avatar == null)
     {
       avatar.src = "images/iconless.png";
-    }
-    else
-    {
+    } else {
       // TODO: Request webp if user agent supports it.
       avatar.src = user.avatarURL(format: 'png', size: 128);
     }
     username.title = user.id;
     username.text = user.username;
-    if (user.status==null){
+    if (user.status==null) {
       avatar.className="offline";
-      }
-      else{
-        avatar.className=user.status;
-      }
+    } else {
+      avatar.className=user.status;
+    }
     
     userslist.append(userFragment);
   }

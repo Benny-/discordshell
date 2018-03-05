@@ -105,11 +105,17 @@ class ChatPane {
       }
 
       channel.getMessages().then((messages) {
-        this.messages.innerHtml="";
+        for(DivElement msg in this.messages.querySelectorAll(".message"))
+-        {
+-          msg.remove();
+-        }
         List<discord.Member> userlist = new List<discord.Member>();
         //Check if different server
         if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id){
-        this.userslist.innerHtml="";
+          for(DivElement user in this.userslist.querySelectorAll(".useritem"))//remove current userlist
+-        {
+-          user.remove();
+-        }
           for (final users in channel.guild.members.values) //put users into list
           {
             userlist.add(users);

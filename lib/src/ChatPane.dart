@@ -113,24 +113,21 @@ class ChatPane {
       }
 
       channel.getMessages().then((messages) {
-        while(this.messages.firstChild != null)
-        {
-          this.messages.firstChild.remove();
-        }
-        List<discord.Member> userlist = new List<discord.Member>();
-        //Check if different server
-        if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id) {
+          while(this.messages.firstChild != null)
+          {
+            this.messages.firstChild.remove();
+          }
+          //Check if different server
+          if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id) {
           while(this.userslist.firstChild != null)//remove current userlist
           {
             this.userslist.firstChild.remove();
           }
-          for (final users in channel.guild.members.values) //put users into list
+
+          for (final user in channel.guild.members.values) //put users into list
           {
-            userlist.add(users);
-          }
-          userlist.forEach((user) { //add users from object list to display list
             this.adduser(user);
-          });
+          }
         }
         selectedChannel = channel;
 

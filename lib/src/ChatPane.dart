@@ -44,6 +44,7 @@ class ChatPane {
   final DivElement userslist;
   final discord.Client bot;
   final NodeValidator nodeValidator;
+  bool typingBusy = false;
 
   final Map<OptionElement, discord.TextChannel> optionToChannel = new Map<OptionElement, discord.TextChannel>();
 
@@ -86,13 +87,20 @@ class ChatPane {
     chatButton.disabled = true;
     this.textArea.addEventListener('input', (e) {
       chatButton.disabled = this.textArea.value.length == 0;
+      if(this.textArea.value.length != 0 && !this.typingBusy)
+      {
+        this.typingBusy = true;
+        this.selectedChannel.startTyping().then((result) {
+          this.typingBusy = false;
+        });
+      }
     });
   
   bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
-    if(e.newMember.guild==selectedChannel.guild){
-      HtmlElement avatar = userslist.querySelector("[title='"+e.newMember.id+"']");
-      ImageElement picture = avatar.parent.querySelector("img");
-      picture.className=e.newMember.status;
+    if(selectedChannel != null && e.newMember.guild==selectedChannel.guild){
+      HtmlElement useritem = userslist.querySelector("[title='"+e.newMember.id+"']");
+      ImageElement avatar = useritem.parent.querySelector("img");
+      avatar.className=e.newMember.status;
     }
   });
 
@@ -118,11 +126,19 @@ class ChatPane {
          }
           for (final users in channel.guild.members.values) //put users into list
           {
-            userlist.add(users);
+            this.messages.firstChild.remove();
           }
-          userlist.forEach((user) { //add users from object list to display list
-          this.adduser(user);
-        });
+          //Check if different server
+          if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id) {
+          while(this.userslist.firstChild != null)//remove current userlist
+          {
+            this.userslist.firstChild.remove();
+          }
+
+          for (final user in channel.guild.members.values) //put users into list
+          {
+            this.adduser(user);
+          }
         }
         selectedChannel = channel;
 
@@ -144,28 +160,25 @@ class ChatPane {
     });
   }
 
-
   adduser(discord.Member user) {
     DocumentFragment userFragment = document.importNode(userTemplate.content, true);
+    DivElement useritem = userFragment.querySelector(".useritem");
     ImageElement avatar = userFragment.querySelector(".offline");
     HtmlElement username = userFragment.querySelector(".user-list-name");
-  if(user.avatar == null)
+    if(user.avatar == null)
     {
       avatar.src = "images/iconless.png";
-    }
-    else
-    {
+    } else {
       // TODO: Request webp if user agent supports it.
       avatar.src = user.avatarURL(format: 'png', size: 128);
     }
-    username.title = user.id;
+    useritem.title = user.id;
     username.text = user.username;
-    if (user.status==null){
+    if (user.status==null) {
       avatar.className="offline";
-      }
-      else{
-        avatar.className=user.status;
-      }
+    } else {
+      avatar.className=user.status;
+    }
     
     userslist.append(userFragment);
   }

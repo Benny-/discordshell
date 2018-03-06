@@ -5,7 +5,7 @@ homepage: https://github.com/Benny-/discordshell
 author: Benny Jacobs <benny@gmx.it>
 
 environment:
-  sdk: '>=2.0.0-dev.8'
+  sdk: '>=2.0.0-dev.20.0'
 
 dependencies:
   markdown: "^1.1.0"

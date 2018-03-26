@@ -33,6 +33,7 @@ import 'dart:html';
 import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
 import 'package:markdown/markdown.dart';
+import 'dart:async';
 
 class ChatPane {
 
@@ -41,10 +42,12 @@ class ChatPane {
   final TextAreaElement textArea;
   final TemplateElement messageTemplate;
   final TemplateElement userTemplate;
+  List<Usertimer> typingusers= new List<Usertimer>();
   final DivElement userslist;
+  final DivElement typing;
   final discord.Client bot;
-  final NodeValidator nodeValidator;
   bool typingBusy = false;
+  final NodeValidator nodeValidator;
 
   final Map<OptionElement, discord.TextChannel> optionToChannel = new Map<OptionElement, discord.TextChannel>();
 
@@ -55,17 +58,95 @@ class ChatPane {
     messages = container.querySelector(".chat-messages"),
     userslist = container.querySelector(".users-list"),
     textArea = container.querySelector("textarea"),
+    typing = container.querySelector("#typing"),
     userTemplate = container.querySelector("template[name=user-template]"),
     messageTemplate = container.querySelector("template[name=message-template]")
   {
     this.rebuildChannelSelector();
     assert(messages != null);
 
+    typinglistupdate(){
+      typing.innerHtml="";
+      List<Usertimer> removelist = new List<Usertimer>();
+      typingusers.forEach((f){
+        if (f.count<=0){
+          removelist.add(f);
+        }
+        else{
+          f.count-=1;
+            typing.innerHtml += f.name+", ";
+        }
+      });
+      removelist.forEach((f){
+        typingusers.remove(f);
+      });
+      removelist.clear();
+      switch(typingusers.length){
+        case 0:
+        break;
+        case 1:
+        typing.innerHtml = typing.innerHtml.substring(0,typing.innerHtml.length-2)+ " is typing...";
+        break;
+        case 2:
+        case 3:
+        case 4:
+        typing.innerHtml = typing.innerHtml.substring(0,typing.innerHtml.length-2)+" are typing...";
+        break;
+        default:
+        typing.innerHtml = "Several people are typing";
+        break;
+      }
+    }
+
+    const oneSec = const Duration(seconds:1);
+    new Timer.periodic(oneSec, (Timer t) => typinglistupdate());
+    bot.onTyping.listen((typer){
+      //print(typer.user.username+" Typing..."+typer.channel.name); //6 seconds
+      if (selectedChannel==null||typer.user.id==bot.user.id||typer.channel.id!=selectedChannel.id){
+        return;
+      }
+      Usertimer user = new Usertimer(typer.user.username,8,typer.user.id);
+      bool found=false;
+      typingusers.forEach((f){
+        if (f.name==user.name){
+          f.count = 8;
+          found = true;
+        }
+      });
+      if (!found){
+              typingusers.add(user);
+      }
+    });
+
+     bot.onMessageDelete.listen((message){
+      if(message.message.channel.id==selectedChannel.id){
+        DivElement msgelement = messages.querySelector("[title='"+message.message.id+"']");
+        msgelement.parent.remove();
+      }
+    });
+	    bot.onMessageUpdate.listen((message){
+      if (message.newMessage.channel.id==selectedChannel.id){
+        DivElement msgelement = messages.querySelector("[title='"+message.oldMessage.id+"']");
+        msgelement.innerHtml = markdownToHtml(message.newMessage.content);
+        msgelement.title = message.newMessage.id;
+        if(!this.nodeValidator.allowsElement(msgelement))
+      {
+      msgelement.parent.style.backgroundColor = "red";
+      msgelement.text = "<<Remote code execution protection has prevented this message from being displayed>>";
+      }
+      }
+    });
     bot.onMessage.listen((discord.MessageEvent e) {
       assert(e.message.channel != null);
       if(e.message.channel == this.selectedChannel)
       {
-        this.addMessage(e.message);
+        this.addMessage(e.message, false);
+        typingusers.forEach((f){
+        if (f.id==e.message.author.id){
+          f.count = 0;
+          return;
+        }
+      });
       }
       else
       {
@@ -73,7 +154,27 @@ class ChatPane {
       }
     });
 
-    ButtonElement chatButton = container.querySelector("button");
+    ButtonElement historyButton = container.querySelector(".more-messages");
+    historyButton.addEventListener('click', (e) {
+      selectedChannel.getMessages(before: messages.querySelector(".content").title).then((message){
+    List<discord.Message> list = new List<discord.Message>();
+
+        for (final msg in message.values)
+        {
+          list.add(msg);
+        }
+
+        list.sort((a, b) {
+          return a.timestamp.compareTo(b.timestamp);
+        });
+
+        list.reversed.forEach((msg) {
+          this.addMessage(msg, true);
+        });
+      });
+    });
+
+    ButtonElement chatButton = container.querySelector("#chat");
     chatButton.addEventListener('click', (e) {
       String text = this.textArea.value;
       if(text.length > 0)
@@ -96,11 +197,21 @@ class ChatPane {
       }
     });
   
-  bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e){
-    if(selectedChannel != null && e.newMember.guild==selectedChannel.guild){
-      HtmlElement useritem = userslist.querySelector("[title='"+e.newMember.id+"']");
-      ImageElement avatar = useritem.parent.querySelector("img");
-      avatar.className=e.newMember.status;
+  bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e) {
+    for (discord.Guild guild in bot.guilds.values){
+        guild.members.values.forEach((f){
+          if(f.id==e.newMember.id){
+            f.status = e.newMember.status;
+          }
+        });
+    }
+    if(selectedChannel==null){
+      return;
+    }
+    if(e.newMember.guild==selectedChannel.guild){
+      HtmlElement avatar = userslist.querySelector("[title='"+e.newMember.id+"']");
+      ImageElement picture = avatar.parent.querySelector("img");
+      picture.className=e.newMember.status;
     }
   });
 
@@ -120,25 +231,17 @@ class ChatPane {
         List<discord.Member> userlist = new List<discord.Member>();
         //Check if different server
         if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id){
-       for(DivElement user in this.userslist.querySelectorAll(".useritem"))//remove current userlist
+          for(DivElement user in this.userslist.querySelectorAll(".useritem"))//remove current userlist
          {
            user.remove();
          }
           for (final users in channel.guild.members.values) //put users into list
           {
-            this.messages.firstChild.remove();
+            userlist.add(users);
           }
-          //Check if different server
-          if (selectedChannel == null||selectedChannel.guild.id != channel.guild.id) {
-          while(this.userslist.firstChild != null)//remove current userlist
-          {
-            this.userslist.firstChild.remove();
-          }
-
-          for (final user in channel.guild.members.values) //put users into list
-          {
-            this.adduser(user);
-          }
+          userlist.forEach((user) { //add users from object list to display list
+          this.adduser(user);
+        });
         }
         selectedChannel = channel;
 
@@ -154,36 +257,39 @@ class ChatPane {
         });
 
         list.forEach((msg) {
-          this.addMessage(msg);
+          this.addMessage(msg, false);
         });
       });
     });
   }
 
+
   adduser(discord.Member user) {
     DocumentFragment userFragment = document.importNode(userTemplate.content, true);
-    DivElement useritem = userFragment.querySelector(".useritem");
     ImageElement avatar = userFragment.querySelector(".offline");
     HtmlElement username = userFragment.querySelector(".user-list-name");
-    if(user.avatar == null)
+  if(user.avatar == null)
     {
       avatar.src = "images/iconless.png";
-    } else {
+    }
+    else
+    {
       // TODO: Request webp if user agent supports it.
       avatar.src = user.avatarURL(format: 'png', size: 128);
     }
-    useritem.title = user.id;
+    username.title = user.id;
     username.text = user.username;
-    if (user.status==null) {
+    if (user.status==null){
       avatar.className="offline";
-    } else {
-      avatar.className=user.status;
-    }
+      }
+      else{
+        avatar.className=user.status;
+      }
     
     userslist.append(userFragment);
   }
 
-  addMessage(discord.Message msg) {
+  addMessage(discord.Message msg, bool top) {
     DocumentFragment msgFragment = document.importNode(messageTemplate.content, true);
     ImageElement avatar = msgFragment.querySelector(".user-avatar");
     HtmlElement username = msgFragment.querySelector(".user-name");
@@ -206,7 +312,18 @@ class ChatPane {
       msgFragment.querySelector(".message").style.backgroundColor = "red";
       content.text = "<<Remote code execution protection has prevented this message from being displayed>>";
     }
+    if (top){
+      messages.insertBefore(msgFragment, messages.querySelector(".message"));
+    } else {
+    var check = messages.querySelectorAll(".message");
+    if (check.length!=0){
+      ImageElement lastmessage = check[check.length-1].querySelector(".user-avatar");
+    if (lastmessage.src==avatar.src){
+      avatar.style.opacity = "0";
+    }
+    }
     messages.append(msgFragment);
+    }
   }
 
   rebuildChannelSelector() {
@@ -232,3 +349,14 @@ class ChatPane {
   }
 
 }
+class Usertimer {
+    String name;
+    num count = 2;
+    String id;
+
+  Usertimer(String name, num count, String id) {
+    this.name = name;
+    this.count = count;
+    this.id = id;
+  }
+  }

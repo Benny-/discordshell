@@ -71,6 +71,9 @@
             <select class="channel-selector">
               <option disabled selected value> -- select an channel --</option>
             </select>
+            <button class="more-messages">
+              Load previous 50
+            </button>
             <div class="chat-messages">
               <template name="message-template">
                 <div class="message">
@@ -81,9 +84,10 @@
                 </div>
               </template>
             </div>
+            <div id="typing"></div>
             <form>
               <textarea></textarea>
-              <button type=button>Chat</button>
+              <button type=button id="chat">Chat</button>
             </form>
           </div>
           <div class="users-list">

@@ -22,6 +22,18 @@ img.guild-icon {
   height: 1em;
 }
 
+.bot-tag{
+  background: #7289da;
+  color: #fff;
+  border-radius: 3px;
+  border: 0;
+  display: inline;
+}
+
+.channel-selector{
+  float:left;
+}
+
 .chat-panes{
   display: flex;
 }
@@ -29,25 +41,29 @@ img.guild-icon {
 .online{
   height: 3em;
   width: 3em;
-  border: 0.1em solid green;
+  border: 0.1em solid lime;
+  border-right-width: 0.3em;
 }
 
 .offline{
   height: 3em;
   width: 3em;
   border: 0.1em solid grey;
+  border-right-width: 0.3em;
 }
 
 .dnd{
   height: 3em;
   width: 3em;
   border: 0.1em solid red;
+  border-right-width: 0.3em;
 }
 
 .idle{
   height: 3em;
   width: 3em;
   border: 0.1em solid orange;
+  border-right-width: 0.3em;
 }
 
 .chat-pane {
@@ -84,6 +100,11 @@ img.guild-icon {
   width: 7.2em;
   overflow: hidden;
   display: inline-block;
+}
+
+.more-messages{
+  margin:0;
+  margin-left: 1em;
 }
 
 img.user-avatar {

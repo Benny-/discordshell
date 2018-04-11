@@ -1,3 +1,4 @@
+/*
 BSD 3-Clause License
 
 Copyright (c) 2018, Benny Jacobs
@@ -27,4 +28,65 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+.tabs {
+  display: flex;
+  flex-direction: column;
+}
 
+.tabs-headers {
+  overflow: auto;
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+}
+
+.tabs-headers > * {
+  background: #91df7f;
+  display: flex;
+}
+
+.tabs-headers > * > * {
+  margin: 0.5em;
+  cursor: pointer;
+}
+
+.selected-tab-header {
+  background: #3eb522;
+  border-top: black;
+  border-top-width: 2px;
+  border-top-style: solid;
+}
+
+.tabs-contents {
+  background: #91df7f;
+  border: solid;
+  border-width: 0.2em;
+  border-color: #3eb522;
+  display: flex;
+  flex-grow: 1;
+}
+
+.tab-content {
+  overflow: auto;
+  display: flex;
+  flex-grow: 1;
+}
+
+.tabs section:target,
+.tabs section:target h2
+{
+  color: #333;
+  background-color: #fff;
+  z-index: 2;
+}
+
+article.tabs section,
+article.tabs section h2
+{
+  -webkit-transition: all 500ms ease;
+  -moz-transition: all 500ms ease;
+  -ms-transition: all 500ms ease;
+  -o-transition: all 500ms ease;
+  transition: all 500ms ease;
+}

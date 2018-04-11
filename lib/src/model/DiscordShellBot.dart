@@ -1,3 +1,4 @@
+/*
 BSD 3-Clause License
 
 Copyright (c) 2018, Benny Jacobs
@@ -27,4 +28,32 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+import 'package:discord/discord.dart' as discord;
+import 'package:discord/browser.dart' as discord;
 
+class DiscordShellBot {
+  final String _token;
+  final discord.Client bot;
+  String status = "Not ready...";
+
+  DiscordShellBot.fromBot (this._token, this.bot)
+  {
+    status = 'Loading...';
+
+    bot.onReady.listen((discord.ReadyEvent e) async {
+      status = 'Ready';
+    });
+
+    bot.onHttpError.listen((e) {
+      status = "A HTTP error occured: " + e.response.statusText;
+      print(bot.toString() + ' ' + status);
+    });
+  }
+
+  factory DiscordShellBot(String token)
+  {
+    discord.configureDiscordForBrowser();
+    return new DiscordShellBot.fromBot(token, new discord.Client(token, new discord.ClientOptions(autoShard: false, forceFetchMembers: false)));
+  }
+}

@@ -1,3 +1,4 @@
+/*
 BSD 3-Clause License
 
 Copyright (c) 2018, Benny Jacobs
@@ -27,4 +28,88 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
+.avatar {
+  border-right-width: 0.3em;
+}
+
+.discord-status-online {
+  border: 0.1em solid green;
+}
+
+.discord-status-offline{
+  border: 0.1em solid grey;
+}
+
+.discord-status-dnd{
+  border: 0.1em solid red;
+}
+
+.discord-status-idle{
+  border: 0.1em solid orange;
+}
+
+bot-tag{
+  background: #7289da;
+  color: #fff;
+  border-radius: 3px;
+  border: 0;
+  display: inline;
+}
+
+.chat-pane {
+  display: flex;
+  flex-grow: 1;
+}
+
+.users-list{
+  width: 9em;
+  border-radius: 0.5em;
+  margin: 0.25em;
+  padding: 0.25em;
+  border: solid #656e90;
+  flex-grow: 0;
+}
+
+.user-item{
+  height: 3.26em;
+  width: 10em;
+  margin-right: 0;
+}
+
+.user-list-name{
+  width: 7.2em;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.more-messages{
+  margin:0;
+  margin-left: 1em;
+}
+
+img.user-avatar {
+  width: 1em;
+  height: 1em;
+}
+
+.message {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.message > .user-name {
+  width: 12em;
+  height: 100%;
+  display: inline-block;
+}
+
+.message > .content {
+  display: inline-block;
+}
+
+.message > .content > p {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}

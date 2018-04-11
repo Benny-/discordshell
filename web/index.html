@@ -7,7 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Discord Shell</title>
   <meta name="Description" content="Control a discord bot. See what a bot can see and chat as one.">
-  <link rel="stylesheet" href="css/DiscordShell.css">
+  <link rel="stylesheet" href="css/Bots.css">
+  <link rel="stylesheet" href="css/Bot.css">
+  <link rel="stylesheet" href="css/Guild.css">
+  <link rel="stylesheet" href="css/Channel.css">
+  <link rel="stylesheet" href="css/Chat.css">
+  <link rel="stylesheet" href="css/tabs.css">
   <link rel="stylesheet" href="css/index.css">
   <link rel="icon" href="favicon.ico">
   <script defer src="main.dart" type="application/dart"></script>
@@ -15,14 +20,12 @@
 </head>
 <body>
 
-<header>
-  <a href="">
-    <img src="images/robocord.png" width="64" height="64">
-  </a>
+<header class="site-header">
+  <a href=""><img src="images/robocord.png" width="64" height="64" title="Bzzzt!"></a>
 </header>
 
 <!--[if lte IE 9]>
-<div class="selfContainedBlock">
+<div class="self-contained-block">
   <p class="browserupgrade">
     You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your
     browser</a> to improve your experience and security.
@@ -31,7 +34,7 @@
 <![endif]-->
 
 <noscript>
-  <div class="selfContainedBlock">
+  <div class="self-contained-block">
     <p>
       For full functionality of this site it is necessary to enable JavaScript.
       Here are the <a href="https://www.enable-javascript.com/" target="_blank">
@@ -40,83 +43,129 @@
   </div>
 </noscript>
 
-<div id="status" class="selfContainedBlock">
-  Not running
+<div class="tabs self-contained-block" style="display: none; flex-grow: 1;">
+  <div class="tabs-headers"></div>
+  <div class="tabs-contents"></div>
 </div>
 
-<div id="controls" class="selfContainedBlock" style="display: none">
-  <input placeholder="(bot token)" name="token">
-  <button type="button">Control bot</button>
-</div>
+<template id="discord-shell-bots-controller-template">
+  <div class="discord-shell-bots-controller">
 
-<div id="bots" class="selfContainedBlock" style="display: none">
-  <template id="discord-shell-template">
-    <div class="discord-shell">
-      <div class="discord-shell-status">
-        Not running
-      </div>
-
-      <div class="guild-panes">
-        <template name="guild-pane-template">
-          <div class="guild-pane">
-            <img class="guild-icon" height="128" width="128">
-            <small class="guild-title"></small>
-          </div>
-        </template>
-      </div>
-
-      <div class="chat-panes" >
-        <template name="chat-pane-template">
-          <div class="chat-pane">
-            <select class="channel-selector">
-              <option disabled selected value> -- select an channel --</option>
-            </select>
-            <button class="more-messages">
-              Load previous 50
-            </button>
-            <div class="chat-messages">
-              <template name="message-template">
-                <div class="message">
-                  <time class="timestamp"></time>
-                  <img class="user-avatar" width="128" height="128">
-                  <small class="user-name"></small>
-                  <div class="content"></div>
-                </div>
-              </template>
-            </div>
-            <div id="typing"></div>
-            <form>
-              <textarea></textarea>
-              <button type=button id="chat">Chat</button>
-            </form>
-          </div>
-          <div class="users-list">
-            <template name="user-template">
-              <div class="useritem">
-              <img class="offline" width="128" height="128" >
-              <small class="user-list-name"></small>
-              </div>
-            </template>
-            </div>
-        </template>
-      </div>
+    <div class="self-contained-block">
+      <form class="bot-token-form">
+        <input placeholder="(bot token)" min="5" autocomplete="on" name="token" title="Insert your discord bot token">
+        <input type="submit" value="Control bot">
+      </form>
     </div>
-  </template>
-</div>
 
-<div class="selfContainedBlock">
+    <template name="discord-shell-bot-controller-template">
+      <div class="discord-shell-bot-controller self-contained-block">
 
-  <small>
-    All <a
-          href="https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">discord
-    markdown</a> is supported for sending.
-  </small>
+        <header>
+          <div>
+            <img class="user-avatar" src="images/iconless.png" width="128" height="128">
+            <span class="user-name">???</span>&#35;<span class="user-discriminator">00000</span>
+          </div>
 
-  <small>
-    Bugs and features can be <a href="https://github.com/Benny-/discordshell/issues">reported on github</a>. This
-    website has no relation with <a href="https://discordapp.com/">discordapp.com</a>.
-  </small>
-</div>
+          <div>
+            <small>Status: </small><small class="discord-shell-status">Not ready...</small>
+          </div>
+
+          <div class="discord-id-container">
+            <small>Discord bot id: <a class="discord-user-id discord-id" href="/" title="Invite this bot"></a></small>
+          </div>
+
+        </header>
+
+        <div class="guild-panes">
+          <template name="guild-pane-template">
+            <div class="guild-pane self-contained-block">
+              <img src="images/iconless.png" class="guild-icon" height="128" width="128">
+              <small class="guild-title"></small>
+              <div class="guild-channels">
+                <template name="channel-template">
+                  <div class="channel">&#35;unknown</div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <footer></footer>
+
+      </div>
+    </template>
+  </div>
+</template>
+
+<template id="chat-pane-template">
+  <div class="chat-pane">
+    <button class="more-messages">
+      Load previous 50
+    </button>
+    <div class="chat-messages">
+      <template name="message-template">
+        <div class="message">
+          <time class="timestamp"></time>
+          <img src="images/iconless.png" class="user-avatar" width="128" height="128">
+          <small class="user-name"></small>
+          <div class="content"></div>
+        </div>
+      </template>
+    </div>
+    <div class="typing"></div>
+    <form>
+      <textarea></textarea>
+      <button class="chat">Chat</button>
+    </form>
+    <div class="users-list">
+      <template name="user-template">
+        <div class="user-item">
+          <img class="offline" width="128" height="128" >
+          <small class="user-list-name"></small>
+        </div>
+      </template>
+    </div>
+  </div>
+</template>
+
+<template id="help-template">
+  <article class="help">
+
+    <header>
+      <h2>DiscordShell</h2>
+      <h3>Control discord chat-bots</h3>
+      <img src="images/act.png">
+    </header>
+
+    <p>
+      <a href="https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token">Create a bot token</a> and insert it in this website to start controlling a bot. Click the plus sign to open an new tab and add a bot.
+    </p>
+
+    <footer>
+      <small>
+        All <a href="https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">discord markdown</a> is supported for sending.
+      </small>
+
+      <small>
+        A <a href="https://bennyjacobs.nl/articles/discord-bots/">Blog entry</a> contains more information.
+      </small>
+
+      <small>
+        This website has no relation with <a href="https://discordapp.com/">discordapp.com</a>.
+      </small>
+
+      <small>
+        Bot tokens are not transmitted to any 3th party server, you communicate directly to the discord api.
+      </small>
+
+      <small>
+        <a href="https://github.com/Benny-/discordshell/issues">Report a bug</a>.
+      </small>
+    </footer>
+
+  </article>
+</template>
 
 </body>
 </html>

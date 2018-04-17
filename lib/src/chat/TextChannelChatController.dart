@@ -81,7 +81,14 @@ class TextChannelChatController {
     assert(_userTemplate != null);
     assert(_messageTemplate != null);
 
-    this._titleContainer.text = _channel.name;
+    ImageElement titleIcon = new ImageElement( src: this._ds.bot.user.avatarURL(format: 'png'), width: 128, height: 128);
+    titleIcon.className = "user-avatar";
+    SpanElement titleText = new SpanElement();
+    titleText.text = _channel.name;
+
+    this._titleContainer.append(titleIcon);
+    this._titleContainer.appendText(' ');
+    this._titleContainer.append(titleText);
 
     typingListUpdate() {
       _typing.innerHtml = "";

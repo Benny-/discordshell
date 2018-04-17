@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .tabs {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .tabs-headers {
@@ -65,6 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   border-color: #3eb522;
   display: flex;
   flex-grow: 1;
+  min-height: 0;
 }
 
 .tab-content {

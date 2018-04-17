@@ -205,6 +205,7 @@ class TextChannelChatController {
       }
       this._textArea.value = '';
       chatButton.disabled = true;
+      e.preventDefault();
     });
 
     chatButton.disabled = true;

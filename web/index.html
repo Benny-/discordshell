@@ -53,7 +53,7 @@
 
     <div class="self-contained-block">
       <form class="bot-token-form">
-        <input placeholder="(bot token)" min="5" autocomplete="on" name="token" title="Insert your discord bot token">
+        <input placeholder="(bot token)" required min="1" autocomplete="on" name="token" title="Insert your discord bot token">
         <input type="submit" value="Control bot">
       </form>
     </div>
@@ -74,7 +74,6 @@
           <div class="discord-id-container">
             <small>Discord bot id: <a class="discord-user-id discord-id" href="/" title="Invite this bot"></a></small>
           </div>
-
         </header>
 
         <div class="guild-panes">
@@ -99,32 +98,38 @@
 </template>
 
 <template id="chat-pane-template">
-  <div class="chat-pane">
-    <button class="more-messages">
-      Load previous 50
-    </button>
-    <div class="chat-messages">
-      <template name="message-template">
-        <div class="message">
-          <time class="timestamp"></time>
-          <img src="images/iconless.png" class="user-avatar" width="128" height="128">
-          <small class="user-name"></small>
-          <div class="content"></div>
-        </div>
-      </template>
+  <div class="chat-pane self-contained-block">
+    <div class="chat-pane-column chat-middle-column">
+      <div class="chat-messages">
+        <template name="message-template">
+          <div class="message">
+            <time class="timestamp"></time>
+            <img src="images/iconless.png" class="user-avatar" width="128" height="128">
+            <small class="user-name"></small>
+            <div class="content"></div>
+          </div>
+        </template>
+      </div>
+      <div class="typing"></div>
+      <div class="chat-controls">
+        <form>
+          <textarea></textarea>
+          <button class="chat">Chat</button>
+        </form>
+        <button class="more-messages">
+          Load previous 50
+        </button>
+      </div>
     </div>
-    <div class="typing"></div>
-    <form>
-      <textarea></textarea>
-      <button class="chat">Chat</button>
-    </form>
-    <div class="users-list">
-      <template name="user-template">
-        <div class="user-item">
-          <img class="offline" width="128" height="128" >
-          <small class="user-list-name"></small>
-        </div>
-      </template>
+    <div class="chat-pane-column chat-right-column">
+      <div class="users-list">
+        <template name="user-template">
+          <div class="user-item">
+            <img class="avatar discord-status-offline" width="128" height="128" >
+            <small class="user-list-name"></small>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>

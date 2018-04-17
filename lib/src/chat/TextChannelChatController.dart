@@ -286,10 +286,9 @@ class TextChannelChatController {
   }
 
   addUser(discord.Member user) {
-    DocumentFragment userFragment =
-        document.importNode(_userTemplate.content, true);
+    DocumentFragment userFragment = document.importNode(_userTemplate.content, true);
     DivElement userItem = userFragment.querySelector(".user-item");
-    ImageElement avatar = userFragment.querySelector(".offline");
+    ImageElement avatar = userFragment.querySelector("img.avatar");
     HtmlElement username = userFragment.querySelector(".user-list-name");
     if (user.avatar == null) {
       avatar.src = "images/iconless.png";
@@ -297,8 +296,9 @@ class TextChannelChatController {
       // TODO: Request webp if user agent supports it.
       avatar.src = user.avatarURL(format: 'png', size: 128);
     }
-    userItem.title = user.id;
+    avatar.title = user.id;
     username.text = user.username;
+    username.title = user.username;
     if (user.status == null) {
       avatar.className = "avatar discord-status-offline";
     } else {
@@ -309,8 +309,7 @@ class TextChannelChatController {
   }
 
   addMessage(discord.Message msg, bool top) {
-    DocumentFragment msgFragment =
-        document.importNode(_messageTemplate.content, true);
+    DocumentFragment msgFragment = document.importNode(_messageTemplate.content, true);
     ImageElement avatar = msgFragment.querySelector(".user-avatar");
     HtmlElement username = msgFragment.querySelector(".user-name");
     DivElement content = msgFragment.querySelector(".content");
@@ -334,8 +333,7 @@ class TextChannelChatController {
     } else {
       var check = _messages.querySelectorAll(".message");
       if (check.length != 0) {
-        ImageElement lastMessage =
-            check[check.length - 1].querySelector(".user-avatar");
+        ImageElement lastMessage = check[check.length - 1].querySelector(".user-avatar");
         if (lastMessage.src == avatar.src) {
           avatar.style.opacity = "0";
         }

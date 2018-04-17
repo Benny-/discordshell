@@ -69,16 +69,16 @@ class BotsController {
     InputElement tokenInput = this._view.querySelector('input[name="token"]');
     InputElement tokenSubmit = this._view.querySelector('input[type="submit"]');
 
-    tokenSubmit.disabled = tokenInput.value.length < 5;
+    tokenSubmit.disabled = tokenInput.value.length < 1;
     tokenInput.addEventListener('input', (e) {
-      tokenSubmit.disabled = tokenInput.value.length < 5;
+      tokenSubmit.disabled = tokenInput.value.length < 1;
     });
 
     tokenForm.addEventListener('submit', (e) {
       DiscordShellBot discordShell = new DiscordShellBot(tokenInput.value);
       this._dsCollection.addDiscordShell(discordShell);
       tokenInput.value = "";
-      tokenSubmit.disabled = tokenInput.value.length < 5;
+      tokenSubmit.disabled = tokenInput.value.length < 1;
       e.preventDefault();
     });
   }

@@ -31,23 +31,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 .avatar {
-  border-right-width: 0.3em;
+  border-color: purple;
+  border-style: solid;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-right-width: 0.4em;
+  border-bottom-width: 1px;
 }
 
 .discord-status-online {
-  border: 0.1em solid green;
+  border-color: green;
 }
 
 .discord-status-offline{
-  border: 0.1em solid grey;
+  border-color: gray;
 }
 
 .discord-status-dnd{
-  border: 0.1em solid red;
+  border-color: red;
 }
 
 .discord-status-idle{
-  border: 0.1em solid orange;
+  border-color: orange;
 }
 
 bot-tag{
@@ -63,25 +68,51 @@ bot-tag{
   flex-grow: 1;
 }
 
+.chat-pane-column {
+  display: flex;
+}
+
+.chat-middle-column {
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.chat-controls {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.chat-controls > form {
+  flex-grow: 1;
+  display: flex;
+}
+
+.chat-controls > form > textarea {
+  flex-grow: 1;
+}
+
+.chat-messages {
+  overflow: auto;
+  flex-grow: 1;
+}
+
 .users-list{
-  width: 9em;
+  width: 12em;
   border-radius: 0.5em;
   margin: 0.25em;
   padding: 0.25em;
   border: solid #656e90;
   flex-grow: 0;
+  overflow: auto;
 }
 
 .user-item{
-  height: 3.26em;
-  width: 10em;
-  margin-right: 0;
+  display: flex;
+  overflow: hidden;
 }
 
-.user-list-name{
-  width: 7.2em;
-  overflow: hidden;
-  display: inline-block;
+.user-item > * {
+  margin: 0.2em;
 }
 
 .more-messages{

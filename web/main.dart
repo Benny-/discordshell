@@ -102,8 +102,9 @@ void main() {
 
           tabs.addTab(tab);
 
-          tab.onClose.listen((e) async {
+          tab.onClose.listen((closeEvent) async {
             tabs.removeTab(tab);
+            openedChatTabs[e.ds].remove(e.channel.id);
             await tab.destroy();
             await controller.destroy();
             return null;

@@ -30,44 +30,20 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  background-color: #36393F;
+.discord-shell-bot-controller {
+  flex-grow: 1;
+}
+
+.guild-panes {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
 }
 
-template {
-  display: none;
+.guild-pane {
+  display: inline-block;
 }
 
-header.site-header {
-  background-color: #2F3136;
-  border-bottom: 1px solid black;
+.avatar {
+  height: 3em;
+  width: 3em;
 }
-
-header.site-header > * > img {
-  width: 1.5em;
-  height: 1.5em;
-  margin: 0.2em;
-}
-
-div.self-contained-block {
-  background-color: #FAFAFB;
-  margin: 0.25em;
-  padding: 0.5em;
-  border: 0.1em solid #202225;
-}
-
- article.help {
-   width: 100%;
-   text-align: center;
- }
-
- article.help > header > img {
-   max-width: 80%;
- }

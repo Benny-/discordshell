@@ -29,45 +29,10 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+import './Tabs.dart';
 
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  background-color: #36393F;
-  display: flex;
-  flex-direction: column;
+class NewTabRequestEvent {
+  Tabs tabs;
+
+  NewTabRequestEvent(this.tabs);
 }
-
-template {
-  display: none;
-}
-
-header.site-header {
-  background-color: #2F3136;
-  border-bottom: 1px solid black;
-}
-
-header.site-header > * > img {
-  width: 1.5em;
-  height: 1.5em;
-  margin: 0.2em;
-}
-
-div.self-contained-block {
-  background-color: #FAFAFB;
-  margin: 0.25em;
-  padding: 0.5em;
-  border: 0.1em solid #202225;
-}
-
- article.help {
-   width: 100%;
-   text-align: center;
- }
-
- article.help > header > img {
-   max-width: 80%;
- }

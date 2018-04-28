@@ -1,0 +1,240 @@
+/*
+BSD 3-Clause License
+
+Copyright (c) 2018, Benny Jacobs
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+.avatar {
+  border-color: purple;
+  border-style: solid;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-right-width: 0.4em;
+  border-bottom-width: 1px;
+}
+
+.discord-status-online {
+  border-color: green;
+}
+
+.discord-status-offline{
+  border-color: gray;
+}
+
+.discord-status-dnd{
+  border-color: red;
+}
+
+.discord-status-idle{
+  border-color: orange;
+}
+
+.Hhover:hover{
+  background-color: #36393F;
+  color: #ffffff;
+}
+
+.profile-bar{
+  position: absolute;
+  background: #ffffff;
+  width: 12em;
+  height: auto;
+  border-radius: 5px;
+  border: 2px solid grey;
+}
+
+.profile-name-tag{
+  text-align: center;
+  margin: 1px auto;
+  font-size: 20px;
+  word-wrap: break-word;
+  width: inherit;
+}
+
+.profile-left{
+  margin-left: 1px;
+  margin-right: 0;
+  font-size: inherit;
+  width: 4em;
+  vertical-align: top;
+  display:inline-block;
+}
+
+.profile-right{
+  margin-left: 1px;
+  margin-right: auto;
+  border-left: 2px solid grey;
+  font-size: inherit;
+  min-width: 1em;
+}
+
+.profile-name{
+  margin-right:0;
+  color:black;
+}
+
+.profile-grey{
+  background-color: lightgrey;
+}
+
+.discriminator{
+  font-size: 15px;
+  color: grey;
+  margin-left: 0;
+}
+
+.profile-icon{
+  height: 5em;
+  width: 5em;
+  margin: 5px auto;
+  display: block;
+}
+
+.profile-info{
+  margin: auto;
+  display:flex;
+  color: black;
+  font-size: 13px;
+  word-wrap: break-word;
+  width: inherit;
+}
+
+.profile-roles{
+  margin: 0 0 2px;
+  padding: 0;
+  border-top: 2px solid grey;
+}
+
+.profile-role{
+  margin: 5px;
+  display:inline-block;
+  color: black;
+  font-size: 13px;
+  border: 2px solid grey;
+  border-radius: 3px;
+}
+
+.editbarbox{
+  position: absolute;
+  background-color: #ffffff;
+  width: 50px;
+  height: 35px;
+  border-radius: 5px;
+  border: 2px solid #000000;
+}
+
+bot-tag{
+  background: #7289da;
+  color: #fff;
+  border-radius: 3px;
+  border: 0;
+  display: inline;
+}
+
+.chat-pane {
+  display: flex;
+  flex-grow: 1;
+}
+
+.chat-pane-column {
+  display: flex;
+}
+
+.chat-middle-column {
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.chat-controls {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.chat-controls > form {
+  flex-grow: 1;
+  display: flex;
+}
+
+.chat-controls > form > textarea {
+  flex-grow: 1;
+}
+
+.chat-messages {
+  overflow: auto;
+  flex-grow: 1;
+}
+
+.users-list{
+  width: 12em;
+  border-radius: 0.5em;
+  margin: 0.25em;
+  padding: 0.25em;
+  border: solid #656e90;
+  flex-grow: 0;
+  overflow: auto;
+}
+
+.user-item{
+  display: flex;
+  overflow: hidden;
+}
+
+.user-item > * {
+  margin: 0.2em;
+}
+
+.more-messages{
+  margin:0;
+  margin-left: 1em;
+}
+
+img.user-avatar {
+  width: 1em;
+  height: 1em;
+}
+
+.message {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.message > .user-name {
+  width: 12em;
+  height: 100%;
+  display: inline-block;
+}
+
+.message > .content {
+  display: inline-block;
+}
+
+.message > .content > p {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}

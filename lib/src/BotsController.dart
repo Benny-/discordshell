@@ -76,7 +76,7 @@ class BotsController {
 
     tokenForm.addEventListener('submit', (e) {
       DiscordShellBot discordShell = new DiscordShellBot(tokenInput.value);
-      this._dsCollection.addDiscordShell(discordShell);//creation of bot
+      this._dsCollection.addDiscordShell(discordShell);
       tokenInput.value = "";
       tokenSubmit.disabled = tokenInput.value.length < 1;
       e.preventDefault();

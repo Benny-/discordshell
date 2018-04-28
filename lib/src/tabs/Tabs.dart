@@ -62,7 +62,6 @@ class Tabs {
       this.activeTab = STab;
       this.activeTab.activate();
     };
-
     this._plusTab.headerContent.title = "Add new tab";
     this._plusTab.headerContent.text = "+";
     this._plusTab.tabContent.append(emptyContent);

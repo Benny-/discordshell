@@ -38,6 +38,7 @@ import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
 import '../model/OpenDMChannelRequestEvent.dart';
 
+
 class UserTimer {
   String name;
   num count;
@@ -95,8 +96,15 @@ class TextChannelChatController {
     assert(_messageTemplate != null);
     assert(_editbar != null);
     assert(_profilebar != null);
+          
+    ImageElement titleIcon = new ImageElement( src: this._ds.bot.user.avatarURL(format: 'png'), width: 128, height: 128);
+    titleIcon.className = "user-avatar";
+    SpanElement titleText = new SpanElement();
+    titleText.text = _channel.name;
 
-    this._titleContainer.text = _channel.name;
+    this._titleContainer.append(titleIcon);
+    this._titleContainer.appendText(' ');
+    this._titleContainer.append(titleText);
 
     typingListUpdate() {
       _typing.innerHtml = "";
@@ -437,9 +445,6 @@ class TextChannelChatController {
         _messages.scrollTo(0,_messages.scrollHeight);
     }
   }
-
-
-
   Future<Null> destroy() async {
     return null;
   }

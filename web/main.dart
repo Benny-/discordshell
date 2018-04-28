@@ -136,8 +136,6 @@ void main() {
             });
           });
         }
-
-
         if(e.channel is discord.GroupDMChannel) {
           // TODO: Implement GroupDMChannel chat controller
         }

@@ -41,6 +41,7 @@ import 'package:discordshell/src/model/DiscordShellBot.dart';
 import 'package:discordshell/src/model/OpenChannelRequestEvent.dart';
 import 'package:discordshell/src/BotsController.dart';
 import 'package:discordshell/src/chat/TextChannelChatController.dart';
+import 'package:discordshell/src/chat/DMChatController.dart';
 
 DiscordShellBotCollection bots = new DiscordShellBotCollection();
 
@@ -94,7 +95,6 @@ void main() {
               chatControllerTemplate,
               nodeValidatorBuilder
           );
-
           if(openedChatTabs[e.ds] == null) {
             openedChatTabs[e.ds] = new HashMap<String, Tab>();
           }
@@ -109,12 +109,33 @@ void main() {
             await controller.destroy();
             return null;
           });
-        }
+          controller.onOpenDMChannelRequestEvent.listen((k){
+            assert(k.channel != null);
+            Tab tabl = new Tab(closable: true);
+            DMChatController controller = new DMChatController(
+                k.ds,
+                k.channel,
+                tabl.headerContent,
+                tabl.tabContent,
+                chatControllerTemplate,
+                nodeValidatorBuilder
+            );
+            if(openedChatTabs[k.ds] == null) {
+              openedChatTabs[k.ds] = new HashMap<String, Tab>();
+            }
+            openedChatTabs[k.ds][k.channel.id] = tabl;
 
-        if(e.channel is discord.DMChannel) {
-          // TODO: Implement DMChannel chat controller
-        }
+            tabs.addTab(tabl);
 
+            tabl.onClose.listen((closeEvent) async {
+              tabs.removeTab(tabl);
+              openedChatTabs[k.ds].remove(k.channel.id);
+              await tabl.destroy();
+              await controller.destroy();
+              return null;
+            });
+          });
+        }
         if(e.channel is discord.GroupDMChannel) {
           // TODO: Implement GroupDMChannel chat controller
         }

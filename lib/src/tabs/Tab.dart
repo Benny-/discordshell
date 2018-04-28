@@ -65,6 +65,7 @@ class Tab {
     this.header.append(this.headerContent);
 
     this._closeButton.text = "❌";
+    this._closeButton.className = "Close-Button";
     if(this._closable) {
       this.header.append(this._closeButton);
     }

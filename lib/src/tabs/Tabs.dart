@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
+import 'dart:js' as js;
 import 'dart:math';
 import './NewTabRequestEvent.dart';
 import './Tab.dart';
@@ -53,7 +54,14 @@ class Tabs {
   {
     assert(this._tabsHeaders != null);
     assert(this._tabsContents != null);
-
+    js.context['Changetab'] = (STab) {
+      if(this.activeTab != null)
+      {
+        this.activeTab.deactivate();
+      }
+      this.activeTab = STab;
+      this.activeTab.activate();
+    };
     this._plusTab.headerContent.title = "Add new tab";
     this._plusTab.headerContent.text = "+";
     this._plusTab.tabContent.append(emptyContent);

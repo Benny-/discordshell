@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="css/index.css">
   <link rel="icon" href="favicon.ico">
   <script defer src="main.dart" type="application/dart"></script>
+  <script src="secondary.js" type="application/javascript"></script>
   <script defer src="packages/browser/dart.js"></script>
 </head>
 <body>
@@ -57,10 +58,8 @@
         <input type="submit" value="Control bot">
       </form>
     </div>
-
     <template name="discord-shell-bot-controller-template">
       <div class="discord-shell-bot-controller self-contained-block">
-
         <header>
           <div>
             <img class="user-avatar" src="images/iconless.png" width="128" height="128">
@@ -110,11 +109,39 @@
           </div>
         </template>
       </div>
+      <div class="editbarbox" onmouseleave="this.style.display='none'">
+        <div id="deleteb" class="Hhover">Delete</div>
+        <div id="editb" class="Hhover">Edit</div>
+      </div>
+      <div class="profile-bar" onmouseleave="this.style.display='none'">
+        <a href="https://discordshell.nl/"target="_blank"><img class="profile-icon" background-image = "images/iconless.png" src="images/iconless.png"></a>
+        <div class="profile-name-tag">
+          <img src="images/msg.png" width="20px" height="20px" style="background: #3eb522; border-radius: 3px;margin-bottom: -3px;">
+          <span class="profile-name">Username</span><span class="discriminator">#0000</span>
+        </div>
+        <div class="profile-info" style="border-top:2px solid grey">
+          <span class="profile-left">Nick</span><span class="profile-right">User's nick</span>
+        </div>
+        <div class="profile-info profile-grey">
+          <span class="profile-left">Created</span><span class="profile-right">00/00/00</span>
+        </div>
+        <div class="profile-info">
+          <span class="profile-left">Joined</span><span class="profile-right">00/00/00</span>
+        </div>
+        <div class="profile-info profile-grey">
+          <span class="profile-left">Playing</span><span class="profile-right">Nothing</span>
+        </div>
+        <div class="profile-info">
+          <span class="profile-left">ID</span><span class="profile-right">00000000000000</span>
+        </div>
+        <div class="profile-roles">
+        </div>
+      </div>
       <div class="typing"></div>
       <div class="chat-controls">
         <form>
           <textarea></textarea>
-          <button class="chat">Chat</button>
+          <button type="button" class="chat">Chat</button>
         </form>
         <button class="more-messages">
           Load previous 50
@@ -168,9 +195,10 @@
         <a href="https://github.com/Benny-/discordshell/issues">Report a bug</a>.
       </small>
     </footer>
-
   </article>
 </template>
 
+  </article>
+</template>
 </body>
 </html>

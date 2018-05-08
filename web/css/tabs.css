@@ -58,6 +58,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .tabs-headers > * > * {
   margin: 0.5em;
   cursor: pointer;
+  align-items: center;
+  display: flex;
+  flex-wrap: nowrap;
 }
 
 .selected-tab-header {

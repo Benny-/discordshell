@@ -42,3 +42,11 @@ div.channel:hover {
 div.deleted-channel {
   color: lightslategray;
 }
+
+.dmButton {
+  width: 1em;
+  height: 1em;
+  background: #3eb522;
+  border-radius: 3px;
+  margin-bottom: -3px;
+}

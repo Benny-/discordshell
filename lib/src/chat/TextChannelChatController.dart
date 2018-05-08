@@ -98,7 +98,7 @@ class TextChannelChatController {
     assert(_profilebar != null);
           
     ImageElement titleIcon = new ImageElement( src: this._ds.bot.user.avatarURL(format: 'png'), width: 128, height: 128);
-    titleIcon.className = "user-avatar";
+    titleIcon.className = "user-avatar-tab-header";
     SpanElement titleText = new SpanElement();
     titleText.text = _channel.name;
 

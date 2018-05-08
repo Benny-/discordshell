@@ -34,3 +34,9 @@ img.guild-icon {
   width: 1em;
   height: 1em;
 }
+
+img.user-avatar-tab-header {
+  min-height: 100%;
+  width: unset;
+  height: 1em;
+}

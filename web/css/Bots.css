@@ -34,6 +34,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   flex-grow: 1;
 }
 
+.discriminator{
+  font-size: small;
+  color: grey;
+  margin-left: 0;
+}
+
 form.bot-token-form {
   flex-grow: 1;
   display: flex;

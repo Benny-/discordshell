@@ -57,7 +57,7 @@ class BotController {
   BotController._internal(this._ds, this._view, this._onTextChannelRequestEventStreamController, this.onTextChannelRequestEvent) :
     _userAvatarHTML = _view.querySelector('img.user-avatar'),
     _userNameHTML = _view.querySelector('.user-name'),
-    _userDiscriminatorHTML = _view.querySelector('.user-discriminator'),
+    _userDiscriminatorHTML = _view.querySelector('.discriminator'),
     _userIdHTML = _view.querySelector('a.discord-user-id'),
     _guildPanesHTML = _view.querySelector('div.guild-panes'),
     _botStatusHTML = _view.querySelector('.discord-shell-status'),
@@ -116,7 +116,7 @@ class BotController {
   _ready() {
     this._botStatusHTML.text = "Ready";
     this._userNameHTML.text = this._ds.bot.user.username;
-    this._userDiscriminatorHTML.text = this._ds.bot.user.discriminator;
+    this._userDiscriminatorHTML.text = "#" + this._ds.bot.user.discriminator;
     this._userAvatarHTML.src = this._ds.bot.user.avatarURL(format: 'png');
     this._userIdHTML.text = this._ds.bot.user.id;
     this._userIdHTML.href = 'https://discordapp.com/oauth2/authorize?client_id=' + this._ds.bot.user.id + '&scope=bot';

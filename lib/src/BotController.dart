@@ -35,7 +35,7 @@ import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
 import './model/DiscordShellBot.dart';
 import './GuildController.dart';
-import 'package:discordshell/src/model/OpenChannelRequestEvent.dart';
+import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
 
 class BotController {
   final DiscordShellBot _ds;
@@ -51,10 +51,10 @@ class BotController {
   final DivElement _guildContainer;
   final TemplateElement _guildTemplate;
 
-  final StreamController<OpenChannelRequestEvent> _onOpenChannelRequestEventStreamController;
-  final Stream<OpenChannelRequestEvent> onOpenChannelRequestEvent;
+  final StreamController<OpenTextChannelRequestEvent> _onTextChannelRequestEventStreamController;
+  final Stream<OpenTextChannelRequestEvent> onTextChannelRequestEvent;
 
-  BotController._internal(this._ds, this._view, this._onOpenChannelRequestEventStreamController, this.onOpenChannelRequestEvent) :
+  BotController._internal(this._ds, this._view, this._onTextChannelRequestEventStreamController, this.onTextChannelRequestEvent) :
     _userAvatarHTML = _view.querySelector('img.user-avatar'),
     _userNameHTML = _view.querySelector('.user-name'),
     _userDiscriminatorHTML = _view.querySelector('.user-discriminator'),
@@ -99,16 +99,16 @@ class BotController {
     DivElement view = fragment.querySelector('div.discord-shell-bot-controller');
     parent.append(fragment);
 
-    StreamController<OpenChannelRequestEvent> streamController = new StreamController<OpenChannelRequestEvent>.broadcast();
-    Stream<OpenChannelRequestEvent> stream = streamController.stream;
+    StreamController<OpenTextChannelRequestEvent> streamController = new StreamController<OpenTextChannelRequestEvent>.broadcast();
+    Stream<OpenTextChannelRequestEvent> stream = streamController.stream;
 
     return new BotController._internal(discordShell, view, streamController, stream);
   }
 
   _createGuildEvent(discord.Guild guild) {
     GuildController controller = new GuildController(this._ds, guild, _guildContainer, _guildTemplate);
-    controller.onOpenChannelRequestEvent.listen((e) {
-      this._onOpenChannelRequestEventStreamController.add(e);
+    controller.onTextChannelRequestEvent.listen((e) {
+      this._onTextChannelRequestEventStreamController.add(e);
     });
     this._subControllers.add(controller);
   }
@@ -127,7 +127,7 @@ class BotController {
   }
 
   Future<Null> destroy() async {
-    await this._onOpenChannelRequestEventStreamController.close();
+    await this._onTextChannelRequestEventStreamController.close();
     for(GuildController controller in this._subControllers) {
       await controller.destroy();
     }

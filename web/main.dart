@@ -32,13 +32,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:html';
 import 'dart:async';
 import 'dart:collection';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
 import 'package:discordshell/src/tabs/Tabs.dart';
 import 'package:discordshell/src/tabs/Tab.dart';
 import 'package:discordshell/src/model/DiscordShellBotCollection.dart';
 import 'package:discordshell/src/model/DiscordShellBot.dart';
-import 'package:discordshell/src/model/OpenChannelRequestEvent.dart';
+import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
+import 'package:discordshell/src/model/OpenDMChannelRequestEvent.dart';
 import 'package:discordshell/src/BotsController.dart';
 import 'package:discordshell/src/chat/TextChannelChatController.dart';
 import 'package:discordshell/src/chat/DMChatController.dart';
@@ -67,86 +66,87 @@ void main() {
   Map<DiscordShellBot, Map<String, Tab>> openedChatTabs = new HashMap<DiscordShellBot, Map<String, Tab>>();
 
   tabs.onNewTabRequest.listen((e) {
-    Tab tab = new Tab(closable: true);
-    tabs.addTab(tab);
+    Tab botsControllerTab = new Tab(closable: true);
+    tabs.addTab(botsControllerTab);
 
     BotsController botsController = new BotsController(
         bots,
-        tab.headerContent,
-        tab.tabContent,
+        botsControllerTab.headerContent,
+        botsControllerTab.tabContent,
         botsControllerTemplate
     );
 
-    StreamSubscription<OpenChannelRequestEvent> subscription = botsController.onOpenChannelRequestEvent.listen((e) {
-      assert(e.channel != null);
+    StreamSubscription<OpenTextChannelRequestEvent> onOpenGuildTextChannelSubscription = botsController.onTextChannelRequestEvent.listen((chatOpenRequestEvent) {
+      assert(chatOpenRequestEvent.channel != null);
 
-      if(openedChatTabs.containsKey(e.ds) && openedChatTabs[e.ds].containsKey(e.channel.id)) {
-        Tab tab = openedChatTabs[e.ds][e.channel.id];
+      if(openedChatTabs.containsKey(chatOpenRequestEvent.ds) && openedChatTabs[chatOpenRequestEvent.ds].containsKey(chatOpenRequestEvent.channel.id)) {
+        Tab tab = openedChatTabs[chatOpenRequestEvent.ds][chatOpenRequestEvent.channel.id];
         tabs.activateTab(tab);
       } else {
+        Tab guildTab = new Tab(closable: true);
+        TextChannelChatController controller = new TextChannelChatController(
+            chatOpenRequestEvent.ds,
+            chatOpenRequestEvent.channel,
+            guildTab.headerContent,
+            guildTab.tabContent,
+            chatControllerTemplate,
+            nodeValidatorBuilder
+        );
+        if(openedChatTabs[chatOpenRequestEvent.ds] == null) {
+          openedChatTabs[chatOpenRequestEvent.ds] = new HashMap<String, Tab>();
+        }
+        openedChatTabs[chatOpenRequestEvent.ds][chatOpenRequestEvent.channel.id] = guildTab;
 
-        if(e.channel is discord.TextChannel) {
-          Tab tab = new Tab(closable: true);
-          TextChannelChatController controller = new TextChannelChatController(
-              e.ds,
-              e.channel,
-              tab.headerContent,
-              tab.tabContent,
-              chatControllerTemplate,
-              nodeValidatorBuilder
-          );
-          if(openedChatTabs[e.ds] == null) {
-            openedChatTabs[e.ds] = new HashMap<String, Tab>();
-          }
-          openedChatTabs[e.ds][e.channel.id] = tab;
+        tabs.addTab(guildTab);
 
-          tabs.addTab(tab);
-
-          tab.onClose.listen((closeEvent) async {
-            tabs.removeTab(tab);
-            openedChatTabs[e.ds].remove(e.channel.id);
-            await tab.destroy();
-            await controller.destroy();
-            return null;
-          });
-          controller.onOpenDMChannelRequestEvent.listen((k){
-            assert(k.channel != null);
-            Tab tabl = new Tab(closable: true);
+        StreamSubscription<OpenDMChannelRequestEvent> openDMChannelSubscription = controller.onOpenDMChannelRequestEvent.listen((dmOpenRequestEvent) {
+          if(openedChatTabs.containsKey(dmOpenRequestEvent.ds) && openedChatTabs[dmOpenRequestEvent.ds].containsKey(dmOpenRequestEvent.channel.id)) {
+            Tab tab = openedChatTabs[dmOpenRequestEvent.ds][dmOpenRequestEvent.channel.id];
+            tabs.activateTab(tab);
+          } else {
+            assert(dmOpenRequestEvent.channel != null);
+            Tab dmTab = new Tab(closable: true);
             DMChatController controller = new DMChatController(
-                k.ds,
-                k.channel,
-                tabl.headerContent,
-                tabl.tabContent,
+                dmOpenRequestEvent.ds,
+                dmOpenRequestEvent.channel,
+                dmTab.headerContent,
+                dmTab.tabContent,
                 chatControllerTemplate,
                 nodeValidatorBuilder
             );
-            if(openedChatTabs[k.ds] == null) {
-              openedChatTabs[k.ds] = new HashMap<String, Tab>();
+            if (openedChatTabs[dmOpenRequestEvent.ds] == null) {
+              openedChatTabs[dmOpenRequestEvent.ds] = new HashMap<String, Tab>();
             }
-            openedChatTabs[k.ds][k.channel.id] = tabl;
+            openedChatTabs[dmOpenRequestEvent.ds][dmOpenRequestEvent.channel.id] = dmTab;
 
-            tabs.addTab(tabl);
+            tabs.addTab(dmTab);
 
-            tabl.onClose.listen((closeEvent) async {
-              tabs.removeTab(tabl);
-              openedChatTabs[k.ds].remove(k.channel.id);
-              await tabl.destroy();
+            dmTab.onClose.listen((closeEvent) async {
+              tabs.removeTab(dmTab);
+              openedChatTabs[dmOpenRequestEvent.ds].remove(dmOpenRequestEvent.channel.id);
+              await dmTab.destroy();
               await controller.destroy();
               return null;
             });
-          });
-        }
-        if(e.channel is discord.GroupDMChannel) {
-          // TODO: Implement GroupDMChannel chat controller
-        }
+          }
+        });
+
+        guildTab.onClose.listen((closeEvent) async {
+          tabs.removeTab(guildTab);
+          openedChatTabs[chatOpenRequestEvent.ds].remove(chatOpenRequestEvent.channel.id);
+          await openDMChannelSubscription.cancel();
+          await guildTab.destroy();
+          await controller.destroy();
+          return null;
+        });
       }
     });
 
-    tab.onClose.listen((e) async {
-      tabs.removeTab(tab);
-      await tab.destroy();
+    botsControllerTab.onClose.listen((e) async {
+      tabs.removeTab(botsControllerTab);
+      await botsControllerTab.destroy();
+      await onOpenGuildTextChannelSubscription.cancel();
       await botsController.destroy();
-      await subscription.cancel();
       return null;
     });
 

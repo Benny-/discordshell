@@ -33,9 +33,9 @@ import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
 import './DiscordShellBot.dart';
 
-class OpenChannelRequestEvent {
+class OpenTextChannelRequestEvent {
   DiscordShellBot ds;
-  discord.Channel channel;
+  discord.TextChannel channel;
 
-  OpenChannelRequestEvent(this.ds, this.channel);
+  OpenTextChannelRequestEvent(this.ds, this.channel);
 }

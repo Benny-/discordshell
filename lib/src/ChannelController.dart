@@ -34,17 +34,17 @@ import 'dart:html';
 import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
 import './model/DiscordShellBot.dart';
-import 'package:discordshell/src/model/OpenChannelRequestEvent.dart';
+import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
 
 class ChannelController {
   final DiscordShellBot _ds;
   discord.GuildChannel _channel;
   final DivElement _view;
 
-  final StreamController<OpenChannelRequestEvent> _onOpenChannelRequestEventStreamController;
-  final Stream<OpenChannelRequestEvent> onOpenChannelRequestEvent;
+  final StreamController<OpenTextChannelRequestEvent> _onTextChannelRequestEventStreamController;
+  final Stream<OpenTextChannelRequestEvent> onTextChannelRequestEvent;
 
-  ChannelController._internal(this._ds, this._channel, this._view, this._onOpenChannelRequestEventStreamController, this.onOpenChannelRequestEvent) {
+  ChannelController._internal(this._ds, this._channel, this._view, this._onTextChannelRequestEventStreamController, this.onTextChannelRequestEvent) {
     this._ds.bot.onChannelUpdate.listen((e) {
       assert(e.oldChannel.id != _channel.id || (e.oldChannel.id == _channel.id && e.oldChannel == _channel));
 
@@ -63,8 +63,8 @@ class ChannelController {
     });
 
     this._view.addEventListener('click', (DomEvent) {
-      OpenChannelRequestEvent e = new OpenChannelRequestEvent(this._ds, this._channel);
-      _onOpenChannelRequestEventStreamController.add(e);
+      OpenTextChannelRequestEvent e = new OpenTextChannelRequestEvent(this._ds, this._channel);
+      _onTextChannelRequestEventStreamController.add(e);
     });
 
     this.updateView();
@@ -75,8 +75,8 @@ class ChannelController {
     DivElement view = fragment.querySelector('div.channel');
     parent.append(view);
 
-    StreamController<OpenChannelRequestEvent> streamController = new StreamController<OpenChannelRequestEvent>.broadcast();
-    Stream<OpenChannelRequestEvent> stream = streamController.stream;
+    StreamController<OpenTextChannelRequestEvent> streamController = new StreamController<OpenTextChannelRequestEvent>.broadcast();
+    Stream<OpenTextChannelRequestEvent> stream = streamController.stream;
 
     return new ChannelController._internal(ds, guildChannel, view, streamController, stream);
   }
@@ -87,7 +87,7 @@ class ChannelController {
   }
 
   Future<Null> destroy() async {
-    await this._onOpenChannelRequestEventStreamController.close();
+    await this._onTextChannelRequestEventStreamController.close();
     return null;
   }
 }

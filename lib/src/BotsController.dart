@@ -34,7 +34,7 @@ import 'dart:async';
 import './model/DiscordShellBot.dart';
 import 'package:discordshell/src/model/DiscordShellBotCollection.dart';
 import './BotController.dart';
-import 'package:discordshell/src/model/OpenChannelRequestEvent.dart';
+import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
 
 class BotsController {
   final DiscordShellBotCollection _dsCollection;
@@ -45,15 +45,15 @@ class BotsController {
 
   final HtmlElement _view;
 
-  final StreamController<OpenChannelRequestEvent> _onOpenChannelRequestEventStreamController;
-  final Stream<OpenChannelRequestEvent> onOpenChannelRequestEvent;
+  final StreamController<OpenTextChannelRequestEvent> _onTextChannelRequestEventStreamController;
+  final Stream<OpenTextChannelRequestEvent> onTextChannelRequestEvent;
 
   BotsController._internal(this._dsCollection,
       this._titleContainer,
       this._view,
       this._botTemplate,
-      this._onOpenChannelRequestEventStreamController,
-      this.onOpenChannelRequestEvent)
+      this._onTextChannelRequestEventStreamController,
+      this.onTextChannelRequestEvent)
   {
     this._titleContainer.text = "Bots";
 
@@ -93,8 +93,8 @@ class BotsController {
     DivElement view = fragment.querySelector('div.discord-shell-bots-controller');
     _contentContainer.append(fragment);
 
-    StreamController<OpenChannelRequestEvent> streamController = new StreamController<OpenChannelRequestEvent>.broadcast();
-    Stream<OpenChannelRequestEvent> stream = streamController.stream;
+    StreamController<OpenTextChannelRequestEvent> streamController = new StreamController<OpenTextChannelRequestEvent>.broadcast();
+    Stream<OpenTextChannelRequestEvent> stream = streamController.stream;
 
     return new BotsController._internal(
         _dsCollection,
@@ -112,14 +112,14 @@ class BotsController {
         this._view,
         this._botTemplate
     );
-    botController.onOpenChannelRequestEvent.listen((e) {
-      this._onOpenChannelRequestEventStreamController.add(e);
+    botController.onTextChannelRequestEvent.listen((e) {
+      this._onTextChannelRequestEventStreamController.add(e);
     });
     _subControllers.add(botController);
   }
 
   Future<Null> destroy() async {
-    await this._onOpenChannelRequestEventStreamController.close();
+    await this._onTextChannelRequestEventStreamController.close();
     for(BotController controller in this._subControllers) {
       await controller.destroy();
     }

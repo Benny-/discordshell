@@ -195,8 +195,8 @@ class DMChatController {
 
     this._ds.bot.onMessageDelete.listen((message) {
       if (message.message.channel.id == _channel.id) {
-        DivElement msgelement = _messages.querySelector("[title='" + message.message.id + "']");
-        msgelement.parent.remove();
+        DivElement msgElement = _messages.querySelector("[title='" + message.message.id + "']");
+        msgElement.parent.remove();
       }
     });
 
@@ -234,10 +234,10 @@ class DMChatController {
     _profile = _channel.recipient;
     _usersList.innerHtml = _profilebar.outerHtml;
     _profilebar = _usersList.firstChild;
-    ImageElement profileimg = _profilebar.querySelector(".profile-icon");
-    AnchorElement ancho = profileimg.parent;
-    profileimg.src = _profile.avatar == null ? "images/iconless.png" : _profile.avatarURL(format: 'png', size: 128);
-    ancho.href = _profile.avatar == null ? "images/iconless.png" : _profile.avatarURL(format: 'png',size: 1024);
+    ImageElement profileImg = _profilebar.querySelector(".profile-icon");
+    AnchorElement anchor = profileImg.parent;
+    profileImg.src = _profile.avatar == null ? "images/iconless.png" : _profile.avatarURL(format: 'png', size: 128);
+    anchor.href = _profile.avatar == null ? "images/iconless.png" : _profile.avatarURL(format: 'png',size: 1024);
     _profilebar.querySelector(".profile-name-tag img").remove();
     _profilebar.querySelector(".profile-name").innerHtml = _profile.username;
     _profilebar.querySelector(".discriminator").innerHtml = "#"+_profile.discriminator;
@@ -404,8 +404,6 @@ class DMChatController {
         _messages.scrollTo(0,_messages.scrollHeight);
     }
   }
-
-
 
   Future<Null> destroy() async {
     return null;

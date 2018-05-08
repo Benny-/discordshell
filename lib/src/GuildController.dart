@@ -35,7 +35,7 @@ import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
 import 'package:discordshell/src/model/DiscordShellBot.dart';
 import './ChannelController.dart';
-import 'package:discordshell/src/model/OpenChannelRequestEvent.dart';
+import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
 
 class GuildController {
   final DiscordShellBot _ds;
@@ -48,16 +48,17 @@ class GuildController {
   final DivElement _guildChannels;
   final TemplateElement _channelTemplate;
 
-  final StreamController<OpenChannelRequestEvent> _onOpenChannelRequestEventStreamController;
-  final Stream<OpenChannelRequestEvent> onOpenChannelRequestEvent;
+  final StreamController<OpenTextChannelRequestEvent> _onTextChannelRequestEventStreamController;
+  final Stream<OpenTextChannelRequestEvent> onTextChannelRequestEvent;
 
-  GuildController._internal(this._ds, this._guild, this._view, this._onOpenChannelRequestEventStreamController, this.onOpenChannelRequestEvent) :
+  GuildController._internal(this._ds, this._guild, this._view, this._onTextChannelRequestEventStreamController, this.onTextChannelRequestEvent) :
     _image = _view.querySelector('img'),
     _title = _view.querySelector('.guild-title'),
     _guildChannels = _view.querySelector('div.guild-channels'),
     _channelTemplate = _view.querySelector('template[name="channel-template"]')
   {
     assert(_channelTemplate != null);
+    assert(_view != null);
 
     this._updateView();
 
@@ -91,8 +92,8 @@ class GuildController {
     DivElement view = fragment.querySelector('div.guild-pane');
     parent.append(view);
 
-    StreamController<OpenChannelRequestEvent> streamController = new StreamController<OpenChannelRequestEvent>.broadcast();
-    Stream<OpenChannelRequestEvent> stream = streamController.stream;
+    StreamController<OpenTextChannelRequestEvent> streamController = new StreamController<OpenTextChannelRequestEvent>.broadcast();
+    Stream<OpenTextChannelRequestEvent> stream = streamController.stream;
 
     return new GuildController._internal(ds, guild, view, streamController, stream);
   }
@@ -116,16 +117,16 @@ class GuildController {
   _createGuildChannel(discord.GuildChannel guildChannel) {
     if(guildChannel.type == 'text') {
       ChannelController controller = new ChannelController(_ds, guildChannel, this._guildChannels, _channelTemplate);
-      controller.onOpenChannelRequestEvent.listen((e) {
+      controller.onTextChannelRequestEvent.listen((e) {
         assert(e.channel != null);
-        this._onOpenChannelRequestEventStreamController.add(e);
+        this._onTextChannelRequestEventStreamController.add(e);
       });
       this._subControllers.add(controller);
     }
   }
 
   Future<Null> destroy() async {
-    await this._onOpenChannelRequestEventStreamController.close();
+    await this._onTextChannelRequestEventStreamController.close();
     for(ChannelController controller in this._subControllers) {
       await controller.destroy();
     }

@@ -60,12 +60,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   cursor: pointer;
   align-items: center;
   display: flex;
-  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .selected-tab-header {
   background: #3eb522;
   border-top: black;
+  border-top-width: 2px;
+  border-top-style: solid;
+}
+
+.deselected-tab-header {
+  border-top: #91df7f;
   border-top-width: 2px;
   border-top-style: solid;
 }

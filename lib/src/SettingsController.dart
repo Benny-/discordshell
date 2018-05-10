@@ -29,65 +29,25 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+import 'dart:async';
+import 'dart:html';
 
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  background-color: #36393F;
-  display: flex;
-  flex-direction: column;
-}
+class SettingsController {
+  final HtmlElement _titleContainer;
+  final HtmlElement _view;
 
-template {
-  display: none;
-}
+  SettingsController._internal(this._titleContainer, this._view) {
+    _titleContainer.text = "Settings";
+    _view.text = "Hello, there is nothing here yet";
+  }
 
-header.site-header {
-  background-color: #2F3136;
-  border-bottom: 1px solid black;
-  display: flex;
-  flex-shrink: 0;
-  flex-grow: 0;
-  justify-content: space-between;
-}
+  factory SettingsController(
+      HtmlElement _titleContainer,
+      HtmlElement _contentContainer) {
+    return new SettingsController._internal(_titleContainer, _contentContainer);
+  }
 
-header.site-header > a {
-  display: flex;
-  flex-grow: 0;
-}
-
-header.site-header > a > img {
-  width: 1.5em;
-  height: 1.5em;
-  margin: 0.2em;
-}
-
-header.site-header > svg {
-  width: 1.5em;
-  height: 1.5em;
-  margin: 0.2em;
-  flex-grow: 0;
-  flex-shrink: 0;
-}
-
-div.self-contained-block {
-  background-color: #FAFAFB;
-  margin: 0.25em;
-  padding: 0.5em;
-  border: 0.1em solid #202225;
-}
-
-article.help {
-  width: 100%;
-  text-align: center;
-}
-
-article.help > header > a > img {
-  width: auto;
-  height: auto;
-
-  max-width: 80%;
+  Future<Null> destroy() async {
+    return null;
+  }
 }

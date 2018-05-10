@@ -41,6 +41,7 @@ import 'package:discordshell/src/model/OpenDMChannelRequestEvent.dart';
 import 'package:discordshell/src/BotsController.dart';
 import 'package:discordshell/src/chat/TextChannelChatController.dart';
 import 'package:discordshell/src/chat/DMChatController.dart';
+import 'package:discordshell/src/SettingsController.dart';
 
 DiscordShellBotCollection bots = new DiscordShellBotCollection();
 
@@ -49,6 +50,7 @@ void main() {
   TemplateElement botsControllerTemplate = querySelector('template#discord-shell-bots-controller-template');
   TemplateElement chatControllerTemplate = querySelector('template#chat-pane-template');
   TemplateElement helpTemplate = querySelector('template#help-template');
+  Node settingsButtonElement = querySelector('header.site-header>svg');
 
   NodeValidatorBuilder nodeValidatorBuilder = new NodeValidatorBuilder();
   nodeValidatorBuilder.allowTextElements();
@@ -149,6 +151,18 @@ void main() {
       await botsController.destroy();
       return null;
     });
+  });
 
+  settingsButtonElement.addEventListener('click', (e) {
+    Tab settingsTab = new Tab(closable: true);
+    SettingsController settingsController = new SettingsController(settingsTab.headerContent, settingsTab.tabContent);
+    tabs.addTab(settingsTab);
+
+    settingsTab.onClose.listen((e) async {
+      tabs.removeTab(settingsTab);
+      await settingsTab.destroy();
+      await settingsController.destroy();
+      return null;
+    });
   });
 }

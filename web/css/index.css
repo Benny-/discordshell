@@ -48,12 +48,18 @@ template {
 header.site-header {
   background-color: #2F3136;
   border-bottom: 1px solid black;
+  display: flex;
 }
 
-header.site-header > * > img {
+header.site-header > a > img {
   width: 1.5em;
   height: 1.5em;
   margin: 0.2em;
+}
+
+header.site-header > a {
+  display: flex;
+  flex-grow: 0;
 }
 
 div.self-contained-block {
@@ -63,11 +69,14 @@ div.self-contained-block {
   border: 0.1em solid #202225;
 }
 
- article.help {
-   width: 100%;
-   text-align: center;
- }
+article.help {
+  width: 100%;
+  text-align: center;
+}
 
- article.help > header > img {
-   max-width: 80%;
- }
+article.help > header > a > img {
+  width: auto;
+  height: auto;
+
+  max-width: 80%;
+}

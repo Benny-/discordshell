@@ -35,14 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   min-height: 0;
 }
 
-.Close-Button{
-  opacity: 0;
-}
-
-.Close-Button:hover{
-  opacity: 1;
-}
-
 .tabs-headers {
   overflow: auto;
   display: flex;

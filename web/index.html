@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/GuildController.css">
   <link rel="stylesheet" href="css/ChannelController.css">
   <link rel="stylesheet" href="css/ChatController.css">
+  <link rel="stylesheet" href="css/SettingsController.css">
   <link rel="stylesheet" href="css/Tabs.css">
   <link rel="stylesheet" href="css/index.css">
   <link rel="icon" href="favicon.ico">
@@ -171,6 +172,46 @@
       </div>
     </div>
   </div>
+</template>
+
+<template id="settings-template">
+  <form name="settings">
+
+    <label>
+      <input name="enableNotifications" type="checkbox" class="js-switch" checked />
+      <span class="option-title">Notifications</span>
+    </label>
+    Disable or enable all in-browser and desktop notifications.
+    <hr>
+
+    <label>
+      <input name="desktopNotifications" type="checkbox" class="js-switch" checked />
+      <span class="option-title">Desktop notifications</span>
+    </label>
+    Enabling desktop notifications will show all notifications on the desktop. Special permission from the browser will have to be granted. Disabling this will cause notifications to appear within the browser.
+    <hr>
+
+    <label>
+      <input name="enableOpenTabNotifications" type="checkbox" class="js-switch" checked />
+      <span class="option-title">Notify on message in open tab</span>
+    </label>
+    Shows a browser or desktop notification if a message is received in one of the tabs.
+    <hr>
+
+    <label>
+      <input name="enableMentionNotifications" type="checkbox" class="js-switch" checked />
+      <span class="option-title">Notify on all mentions</span>
+    </label>
+    Shows a browser or desktop notification if a message is received which mentions you.
+    <hr>
+
+    <label>
+      <input name="enableOpenTabMentionNotifications" type="checkbox" class="js-switch" checked />
+      <span class="option-title">Notify on mention in open tab</span>
+    </label>
+    Shows a browser or desktop notification if a message is received in an opened channel which mentions you.
+
+  </form>
 </template>
 
 <template id="help-template">

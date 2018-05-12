@@ -50,6 +50,7 @@ void main() {
   TemplateElement botsControllerTemplate = querySelector('template#discord-shell-bots-controller-template');
   TemplateElement chatControllerTemplate = querySelector('template#chat-pane-template');
   TemplateElement helpTemplate = querySelector('template#help-template');
+  TemplateElement settingsTemplate = querySelector('template#settings-template');
   Node settingsButtonElement = querySelector('header.site-header>svg');
 
   NodeValidatorBuilder nodeValidatorBuilder = new NodeValidatorBuilder();
@@ -155,7 +156,7 @@ void main() {
 
   settingsButtonElement.addEventListener('click', (e) {
     Tab settingsTab = new Tab(closable: true);
-    SettingsController settingsController = new SettingsController(settingsTab.headerContent, settingsTab.tabContent);
+    SettingsController settingsController = new SettingsController(settingsTab.headerContent, settingsTab.tabContent, settingsTemplate);
     tabs.addTab(settingsTab);
 
     settingsTab.onClose.listen((e) async {

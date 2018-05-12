@@ -29,28 +29,34 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'dart:async';
-import 'dart:html';
 
-class SettingsController {
-  final HtmlElement _titleContainer;
-  final HtmlElement _view;
+form[name="settings"] {
+  display: flex;
+  flex-direction: column;
+  margin: 2em;
+}
 
-  SettingsController._internal(this._titleContainer, this._view) {
-    _titleContainer.text = "Settings";
-  }
+form[name="settings"] > hr {
+  display: block;
+  position: relative;
+  padding: 0;
+  margin: 8px auto;
+  height: 0;
+  width: 100%;
+  max-height: 0;
+  font-size: 1px;
+  line-height: 0;
+  clear: both;
+  border: none;
+  border-top: 1px solid #91df7f;
+  border-bottom: 1px solid #3eb522;
+}
 
-  factory SettingsController(
-      HtmlElement _titleContainer,
-      HtmlElement _contentContainer,
-      TemplateElement _template) {
-    DocumentFragment fragment = document.importNode(_template.content, true);
-    HtmlElement _view = fragment.querySelector('form');
-    _contentContainer.append(fragment);
-    return new SettingsController._internal(_titleContainer, _view);
-  }
+form[name="settings"] > label{
 
-  Future<Null> destroy() async {
-    return null;
-  }
+}
+
+form[name="settings"] > label > span.option-title{
+  font-size: large;
+  font-weight: bold;
 }

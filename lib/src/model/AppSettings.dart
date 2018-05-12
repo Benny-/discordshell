@@ -29,28 +29,17 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'dart:async';
-import 'dart:html';
 
-class SettingsController {
-  final HtmlElement _titleContainer;
-  final HtmlElement _view;
+class AppSettings {
 
-  SettingsController._internal(this._titleContainer, this._view) {
-    _titleContainer.text = "Settings";
+  bool enableNotifications = true;
+  bool desktopNotifications = false;
+  bool enableOpenTabNotifications = true;
+  bool enableOpenTabMentionNotifications = false;
+  bool enableMentionNotifications = true;
+
+  AppSettings () {
+
   }
 
-  factory SettingsController(
-      HtmlElement _titleContainer,
-      HtmlElement _contentContainer,
-      TemplateElement _template) {
-    DocumentFragment fragment = document.importNode(_template.content, true);
-    HtmlElement _view = fragment.querySelector('form');
-    _contentContainer.append(fragment);
-    return new SettingsController._internal(_titleContainer, _view);
-  }
-
-  Future<Null> destroy() async {
-    return null;
-  }
 }

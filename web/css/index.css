@@ -87,6 +87,11 @@ article.help {
 article.help > header > a > img {
   width: auto;
   height: auto;
+  border: black solid 1px;
 
   max-width: 80%;
+}
+
+article.help > header > a > img:hover {
+  border-color: orange;
 }

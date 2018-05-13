@@ -29,33 +29,13 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'package:discordshell/src/model/AppSettingsChangedEvent.dart';
-import 'dart:async';
+import 'package:discordshell/src/model/AppSettings.dart';
 
-class AppSettings {
+class AppSettingsChangedEvent {
+  final AppSettings appSettings;
 
-  bool enableNotifications = true;
-  bool desktopNotifications = false;
-  bool enableOpenTabNotifications = true;
-  bool enableOpenTabMentionNotifications = false;
-  bool enableMentionNotifications = true;
-
-  final StreamController<AppSettingsChangedEvent> _onAppSettingsChangedEventStreamController;
-  final Stream<AppSettingsChangedEvent> onAppSettingsChangedEvent;
-
-  AppSettings._internal(this._onAppSettingsChangedEventStreamController, this.onAppSettingsChangedEvent) {
+  AppSettingsChangedEvent(this.appSettings) {
 
   }
 
-  factory AppSettings () {
-
-    StreamController<AppSettingsChangedEvent> streamController = new StreamController<AppSettingsChangedEvent>.broadcast();
-    Stream<AppSettingsChangedEvent> stream = streamController.stream;
-
-    return new AppSettings._internal(streamController, stream);
-  }
-
-  notifyChangeListeners() {
-    return this._onAppSettingsChangedEventStreamController.add(new AppSettingsChangedEvent(this));
-  }
 }

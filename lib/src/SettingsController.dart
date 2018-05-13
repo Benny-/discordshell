@@ -31,26 +31,102 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:async';
 import 'dart:html';
+import './model/AppSettings.dart';
+import './model/AppSettingsChangedEvent.dart';
 
 class SettingsController {
+  final AppSettings _appSettings;
   final HtmlElement _titleContainer;
   final HtmlElement _view;
 
-  SettingsController._internal(this._titleContainer, this._view) {
+  final InputElement _enableNotifications;
+  final InputElement _desktopNotifications;
+  final InputElement _enableOpenTabNotifications;
+  final InputElement _enableMentionNotifications;
+  final InputElement _enableOpenTabMentionNotifications;
+
+  StreamSubscription<AppSettingsChangedEvent> _streamSubscription;
+
+  SettingsController._internal(this._appSettings, this._titleContainer, this._view) :
+        _enableNotifications = _view.querySelector('input[name="enableNotifications"]'),
+        _desktopNotifications = _view.querySelector('input[name="desktopNotifications"]'),
+        _enableOpenTabNotifications = _view.querySelector('input[name="enableOpenTabNotifications"]'),
+        _enableMentionNotifications = _view.querySelector('input[name="enableMentionNotifications"]'),
+        _enableOpenTabMentionNotifications = _view.querySelector('input[name="enableOpenTabMentionNotifications"]')
+  {
     _titleContainer.text = "Settings";
+
+    _streamSubscription = this._appSettings.onAppSettingsChangedEvent.listen((e) {
+      this._loadSettings();
+      this._disableOptionsWithUnmetDependecies();
+    });
+
+    _enableNotifications.addEventListener('change', (e) {
+      this._appSettings.enableNotifications = _enableNotifications.checked;
+      this._disableOptionsWithUnmetDependecies();
+    });
+
+    _desktopNotifications.addEventListener('change', (e) {
+      this._appSettings.desktopNotifications = _desktopNotifications.checked;
+    });
+
+    _enableOpenTabNotifications.addEventListener('change', (e) {
+      this._appSettings.enableOpenTabNotifications = _enableOpenTabNotifications.checked;
+    });
+
+    _enableMentionNotifications.addEventListener('change', (e) {
+      this._appSettings.enableMentionNotifications = _enableMentionNotifications.checked;
+      this._disableOptionsWithUnmetDependecies();
+    });
+
+    _enableOpenTabMentionNotifications.addEventListener('change', (e) {
+      this._appSettings.enableOpenTabMentionNotifications = _enableOpenTabMentionNotifications.checked;
+    });
+
+    this._loadSettings();
+    this._disableOptionsWithUnmetDependecies();
   }
 
   factory SettingsController(
+      AppSettings _appSettings,
       HtmlElement _titleContainer,
       HtmlElement _contentContainer,
       TemplateElement _template) {
     DocumentFragment fragment = document.importNode(_template.content, true);
     HtmlElement _view = fragment.querySelector('form');
     _contentContainer.append(fragment);
-    return new SettingsController._internal(_titleContainer, _view);
+    return new SettingsController._internal(_appSettings, _titleContainer, _view);
+  }
+
+  _loadSettings() {
+    this._enableNotifications.checked = this._appSettings.enableNotifications;
+    this._desktopNotifications.checked = this._appSettings.desktopNotifications;
+    this._enableOpenTabNotifications.checked = this._appSettings.enableOpenTabNotifications;
+    this._enableMentionNotifications.checked = this._appSettings.enableMentionNotifications;
+    this._enableOpenTabMentionNotifications.checked = this._appSettings.enableOpenTabMentionNotifications;
+  }
+
+  _disableOptionsWithUnmetDependecies() {
+    this._enableNotifications.disabled = false;
+    this._desktopNotifications.disabled = false;
+    this._enableOpenTabNotifications.disabled = false;
+    this._enableMentionNotifications.disabled = false;
+    this._enableOpenTabMentionNotifications.disabled = false;
+
+    if(!this._enableNotifications.checked) {
+      this._desktopNotifications.disabled = true;
+      this._enableOpenTabNotifications.disabled = true;
+      this._enableMentionNotifications.disabled = true;
+      this._enableOpenTabMentionNotifications.disabled = true;
+    }
+
+    if(this._enableMentionNotifications.checked) {
+      this._enableOpenTabMentionNotifications.disabled = true;
+    }
   }
 
   Future<Null> destroy() async {
+    await _streamSubscription.cancel();
     return null;
   }
 }

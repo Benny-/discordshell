@@ -34,6 +34,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:discordshell/src/tabs/Tabs.dart';
 import 'package:discordshell/src/tabs/Tab.dart';
+import 'package:discordshell/src/model/AppSettings.dart';
 import 'package:discordshell/src/model/DiscordShellBotCollection.dart';
 import 'package:discordshell/src/model/DiscordShellBot.dart';
 import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
@@ -44,6 +45,7 @@ import 'package:discordshell/src/chat/DMChatController.dart';
 import 'package:discordshell/src/SettingsController.dart';
 
 DiscordShellBotCollection bots = new DiscordShellBotCollection();
+AppSettings appSettings = new AppSettings();
 
 void main() {
   Element tabsHTML = querySelector(".tabs");
@@ -156,7 +158,11 @@ void main() {
 
   settingsButtonElement.addEventListener('click', (e) {
     Tab settingsTab = new Tab(closable: true);
-    SettingsController settingsController = new SettingsController(settingsTab.headerContent, settingsTab.tabContent, settingsTemplate);
+    SettingsController settingsController = new SettingsController(
+        appSettings,
+        settingsTab.headerContent,
+        settingsTab.tabContent,
+        settingsTemplate);
     tabs.addTab(settingsTab);
 
     settingsTab.onClose.listen((e) async {
@@ -165,5 +171,23 @@ void main() {
       await settingsController.destroy();
       return null;
     });
+  });
+
+  // These lines are temporarily here and will be removed.
+  appSettings.enableNotifications = true;
+  appSettings.desktopNotifications = true;
+
+  if(appSettings.enableNotifications && appSettings.desktopNotifications) {
+    if(Notification != null && Notification.supported) {
+      Notification.requestPermission().then((result) {
+        // result is a string which is either "granted" or "denied"
+      }).catchError((e) {
+        print(e);
+      });
+    }
+  }
+
+  appSettings.onAppSettingsChangedEvent.listen((e) {
+    // TODO: Write app settings change event listener.
   });
 }

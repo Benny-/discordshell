@@ -4,7 +4,7 @@ A pure web application to control discord bots. See what they see and chat as a 
 
 #### Requirements
 
-- [dart-sdk 2.0.0-dev.20.0](https://www.dartlang.org/).
+- [dart-sdk 2.0.0-dev.20.0](https://webdev-dartlang-org-dev.firebaseapp.com/tools/sdk/archive).
 - A [discord bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token).
 
 #### Dependencies

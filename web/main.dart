@@ -92,7 +92,13 @@ void main() {
 
     final StreamSubscription<OpenTextChannelRequestEvent> onOpenGuildTextChannelSubscription = botsController.onTextChannelRequestEvent.listen((chatOpenRequestEvent) {
       assert(chatOpenRequestEvent.channel != null);
-      openGuildTextChannel(chatOpenRequestEvent.channel, chatOpenRequestEvent.ds, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
+      Tab tab = openGuildTextChannel(chatOpenRequestEvent.channel,
+          chatOpenRequestEvent.ds,
+          openedChatTabs,
+          tabs,
+          chatControllerTemplate,
+          nodeValidatorBuilder);
+      tabs.focusTab(tab);
     });
 
     botsControllerTab.onClose.listen((e) async {
@@ -263,7 +269,13 @@ Tab openGuildTextChannel(
     tabs.addTab(guildTab, activate: false);
 
     StreamSubscription<OpenDMChannelRequestEvent> openDMChannelSubscription = controller.onOpenDMChannelRequestEvent.listen((dmOpenRequestEvent) {
-      openDMChannel(dmOpenRequestEvent.channel, dmOpenRequestEvent.ds, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
+      Tab tab = openDMChannel(dmOpenRequestEvent.channel,
+          dmOpenRequestEvent.ds,
+          openedChatTabs,
+          tabs,
+          chatControllerTemplate,
+          nodeValidatorBuilder);
+      tabs.focusTab(tab);
     });
 
     guildTab.onClose.listen((closeEvent) async {
@@ -283,7 +295,7 @@ Tab openChannel(
     Channel channel,
     DiscordShellBot ds,
     Map<DiscordShellBot,
-        Map<String, Tab>> openedChatTabs,
+    Map<String, Tab>> openedChatTabs,
     Tabs tabs,
     TemplateElement chatControllerTemplate,
     NodeValidatorBuilder nodeValidatorBuilder) {

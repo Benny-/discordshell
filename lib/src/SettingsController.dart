@@ -64,23 +64,28 @@ class SettingsController {
     _enableNotifications.addEventListener('change', (e) {
       this._appSettings.enableNotifications = _enableNotifications.checked;
       this._disableOptionsWithUnmetDependecies();
+      this._appSettings.notifyChangeListeners();
     });
 
     _desktopNotifications.addEventListener('change', (e) {
       this._appSettings.desktopNotifications = _desktopNotifications.checked;
+      this._appSettings.notifyChangeListeners();
     });
 
     _enableOpenTabNotifications.addEventListener('change', (e) {
       this._appSettings.enableOpenTabNotifications = _enableOpenTabNotifications.checked;
+      this._appSettings.notifyChangeListeners();
     });
 
     _enableMentionNotifications.addEventListener('change', (e) {
       this._appSettings.enableMentionNotifications = _enableMentionNotifications.checked;
       this._disableOptionsWithUnmetDependecies();
+      this._appSettings.notifyChangeListeners();
     });
 
     _enableOpenTabMentionNotifications.addEventListener('change', (e) {
       this._appSettings.enableOpenTabMentionNotifications = _enableOpenTabMentionNotifications.checked;
+      this._appSettings.notifyChangeListeners();
     });
 
     this._loadSettings();

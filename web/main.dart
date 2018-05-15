@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:html';
 import 'dart:async';
 import 'dart:collection';
+import 'package:dartson/dartson.dart';
 import 'package:discordshell/src/tabs/Tabs.dart';
 import 'package:discordshell/src/tabs/Tab.dart';
 import 'package:discordshell/src/model/AppSettings.dart';
@@ -44,18 +45,27 @@ import 'package:discordshell/src/chat/TextChannelChatController.dart';
 import 'package:discordshell/src/chat/DMChatController.dart';
 import 'package:discordshell/src/SettingsController.dart';
 
-DiscordShellBotCollection bots = new DiscordShellBotCollection();
-AppSettings appSettings = new AppSettings();
+final DiscordShellBotCollection bots = new DiscordShellBotCollection();
+final AppSettings appSettings = new AppSettings();
 
 void main() {
-  Element tabsHTML = querySelector(".tabs");
-  TemplateElement botsControllerTemplate = querySelector('template#discord-shell-bots-controller-template');
-  TemplateElement chatControllerTemplate = querySelector('template#chat-pane-template');
-  TemplateElement helpTemplate = querySelector('template#help-template');
-  TemplateElement settingsTemplate = querySelector('template#settings-template');
-  Node settingsButtonElement = querySelector('header.site-header>svg');
+  final Element tabsHTML = querySelector(".tabs");
+  final TemplateElement botsControllerTemplate = querySelector('template#discord-shell-bots-controller-template');
+  final TemplateElement chatControllerTemplate = querySelector('template#chat-pane-template');
+  final TemplateElement helpTemplate = querySelector('template#help-template');
+  final TemplateElement settingsTemplate = querySelector('template#settings-template');
+  final Node settingsButtonElement = querySelector('header.site-header>svg');
 
-  NodeValidatorBuilder nodeValidatorBuilder = new NodeValidatorBuilder();
+  final Dartson dson = new Dartson.JSON();
+
+  final String settingsStr = window.localStorage['settings'];
+  if(settingsStr != null) {
+    assert(settingsStr.length >= 0);
+    final Object obj = dson.decode(window.localStorage['settings'], appSettings);
+    assert(obj == appSettings);
+  }
+
+  final NodeValidatorBuilder nodeValidatorBuilder = new NodeValidatorBuilder();
   nodeValidatorBuilder.allowTextElements();
   nodeValidatorBuilder.allowImages();
   nodeValidatorBuilder.allowSvg();
@@ -65,13 +75,13 @@ void main() {
 
   tabsHTML.style.display = '';
 
-  DocumentFragment helpFragment = document.importNode(helpTemplate.content, true);
-  Tabs tabs = new Tabs(tabsHTML, helpFragment.querySelector('article.help'));
+  final DocumentFragment helpFragment = document.importNode(helpTemplate.content, true);
+  final Tabs tabs = new Tabs(tabsHTML, helpFragment.querySelector('article.help'));
 
-  Map<DiscordShellBot, Map<String, Tab>> openedChatTabs = new HashMap<DiscordShellBot, Map<String, Tab>>();
+  final Map<DiscordShellBot, Map<String, Tab>> openedChatTabs = new HashMap<DiscordShellBot, Map<String, Tab>>();
 
   tabs.onNewTabRequest.listen((e) {
-    Tab botsControllerTab = new Tab(closable: true);
+    final Tab botsControllerTab = new Tab(closable: true);
     tabs.addTab(botsControllerTab);
 
     BotsController botsController = new BotsController(
@@ -81,15 +91,15 @@ void main() {
         botsControllerTemplate
     );
 
-    StreamSubscription<OpenTextChannelRequestEvent> onOpenGuildTextChannelSubscription = botsController.onTextChannelRequestEvent.listen((chatOpenRequestEvent) {
+    final StreamSubscription<OpenTextChannelRequestEvent> onOpenGuildTextChannelSubscription = botsController.onTextChannelRequestEvent.listen((chatOpenRequestEvent) {
       assert(chatOpenRequestEvent.channel != null);
 
       if(openedChatTabs.containsKey(chatOpenRequestEvent.ds) && openedChatTabs[chatOpenRequestEvent.ds].containsKey(chatOpenRequestEvent.channel.id)) {
-        Tab tab = openedChatTabs[chatOpenRequestEvent.ds][chatOpenRequestEvent.channel.id];
+        final Tab tab = openedChatTabs[chatOpenRequestEvent.ds][chatOpenRequestEvent.channel.id];
         tabs.activateTab(tab);
       } else {
-        Tab guildTab = new Tab(closable: true);
-        TextChannelChatController controller = new TextChannelChatController(
+        final Tab guildTab = new Tab(closable: true);
+        final TextChannelChatController controller = new TextChannelChatController(
             chatOpenRequestEvent.ds,
             chatOpenRequestEvent.channel,
             guildTab.headerContent,
@@ -157,7 +167,7 @@ void main() {
   });
 
   settingsButtonElement.addEventListener('click', (e) {
-    Tab settingsTab = new Tab(closable: true);
+    final Tab settingsTab = new Tab(closable: true);
     SettingsController settingsController = new SettingsController(
         appSettings,
         settingsTab.headerContent,
@@ -173,10 +183,13 @@ void main() {
     });
   });
 
-  // These lines are temporarily here and will be removed.
-  appSettings.enableNotifications = true;
-  appSettings.desktopNotifications = true;
+  appSettings.onAppSettingsChangedEvent.listen((e) {
+    requestNotificationPermissionIfNeeded(e.appSettings);
+    window.localStorage['settings'] = dson.encode(e.appSettings);
+  });
+}
 
+void requestNotificationPermissionIfNeeded(AppSettings appSettings) {
   if(appSettings.enableNotifications && appSettings.desktopNotifications) {
     if(Notification != null && Notification.supported) {
       Notification.requestPermission().then((result) {
@@ -186,8 +199,4 @@ void main() {
       });
     }
   }
-
-  appSettings.onAppSettingsChangedEvent.listen((e) {
-    // TODO: Write app settings change event listener.
-  });
 }

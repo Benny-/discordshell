@@ -11,12 +11,14 @@ dependencies:
   markdown: "^1.1.0"
   discord:
     path: 'nyx'
+  dartson: "^0.2.7"
 
 dev_dependencies:
   browser: ^0.10.0
   dart_to_js_script_rewriter: ^1.0.1
 
 transformers:
+- dartson
 - dart_to_js_script_rewriter
 
 # Uncomment the following in sdk 1.24+ to make pub serve

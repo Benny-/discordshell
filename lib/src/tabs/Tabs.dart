@@ -109,7 +109,7 @@ class Tabs {
     }
 
     tab.onSelect.listen((selectEvent) {
-      this.activateTab(selectEvent.tab);
+      this.focusTab(selectEvent.tab);
     });
   }
 
@@ -140,7 +140,7 @@ class Tabs {
     }
   }
 
-  activateTab(Tab tab)
+  focusTab(Tab tab)
   {
     if(this.activeTab != null)
     {

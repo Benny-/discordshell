@@ -92,68 +92,7 @@ void main() {
 
     final StreamSubscription<OpenTextChannelRequestEvent> onOpenGuildTextChannelSubscription = botsController.onTextChannelRequestEvent.listen((chatOpenRequestEvent) {
       assert(chatOpenRequestEvent.channel != null);
-
-      if(openedChatTabs.containsKey(chatOpenRequestEvent.ds) && openedChatTabs[chatOpenRequestEvent.ds].containsKey(chatOpenRequestEvent.channel.id)) {
-        final Tab tab = openedChatTabs[chatOpenRequestEvent.ds][chatOpenRequestEvent.channel.id];
-        tabs.activateTab(tab);
-      } else {
-        final Tab guildTab = new Tab(closable: true);
-        final TextChannelChatController controller = new TextChannelChatController(
-            chatOpenRequestEvent.ds,
-            chatOpenRequestEvent.channel,
-            guildTab.headerContent,
-            guildTab.tabContent,
-            chatControllerTemplate,
-            nodeValidatorBuilder
-        );
-        if(openedChatTabs[chatOpenRequestEvent.ds] == null) {
-          openedChatTabs[chatOpenRequestEvent.ds] = new HashMap<String, Tab>();
-        }
-        openedChatTabs[chatOpenRequestEvent.ds][chatOpenRequestEvent.channel.id] = guildTab;
-
-        tabs.addTab(guildTab);
-
-        StreamSubscription<OpenDMChannelRequestEvent> openDMChannelSubscription = controller.onOpenDMChannelRequestEvent.listen((dmOpenRequestEvent) {
-          if(openedChatTabs.containsKey(dmOpenRequestEvent.ds) && openedChatTabs[dmOpenRequestEvent.ds].containsKey(dmOpenRequestEvent.channel.id)) {
-            Tab tab = openedChatTabs[dmOpenRequestEvent.ds][dmOpenRequestEvent.channel.id];
-            tabs.activateTab(tab);
-          } else {
-            assert(dmOpenRequestEvent.channel != null);
-            Tab dmTab = new Tab(closable: true);
-            DMChatController controller = new DMChatController(
-                dmOpenRequestEvent.ds,
-                dmOpenRequestEvent.channel,
-                dmTab.headerContent,
-                dmTab.tabContent,
-                chatControllerTemplate,
-                nodeValidatorBuilder
-            );
-            if (openedChatTabs[dmOpenRequestEvent.ds] == null) {
-              openedChatTabs[dmOpenRequestEvent.ds] = new HashMap<String, Tab>();
-            }
-            openedChatTabs[dmOpenRequestEvent.ds][dmOpenRequestEvent.channel.id] = dmTab;
-
-            tabs.addTab(dmTab);
-
-            dmTab.onClose.listen((closeEvent) async {
-              tabs.removeTab(dmTab);
-              openedChatTabs[dmOpenRequestEvent.ds].remove(dmOpenRequestEvent.channel.id);
-              await dmTab.destroy();
-              await controller.destroy();
-              return null;
-            });
-          }
-        });
-
-        guildTab.onClose.listen((closeEvent) async {
-          tabs.removeTab(guildTab);
-          openedChatTabs[chatOpenRequestEvent.ds].remove(chatOpenRequestEvent.channel.id);
-          await openDMChannelSubscription.cancel();
-          await guildTab.destroy();
-          await controller.destroy();
-          return null;
-        });
-      }
+      openGuildTextChannel(chatOpenRequestEvent.channel, chatOpenRequestEvent.ds, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
     });
 
     botsControllerTab.onClose.listen((e) async {
@@ -187,18 +126,29 @@ void main() {
 
       bool messageInOpenTab = (openedChatTabs[newDiscordShellEvent.discordShell] != null) && (openedChatTabs[newDiscordShellEvent.discordShell][newMessageEvent.message.channel.id] != null);
       bool messageContainsMention = newMessageEvent.message.content.contains("<@"+newDiscordShellEvent.discordShell.bot.user.id+">");
+      bool isDM = newMessageEvent.message.channel is DMChannel;
+
+      if(isDM) {
+        openDMChannel(newMessageEvent.message.channel,
+            newDiscordShellEvent.discordShell,
+            openedChatTabs,
+            tabs,
+            chatControllerTemplate,
+            nodeValidatorBuilder);
+      }
 
       if(appSettings.enableNotifications) {
         if((appSettings.enableMentionNotifications && messageContainsMention)
             || (appSettings.enableOpenTabNotifications && messageInOpenTab)
-            || (appSettings.enableOpenTabMentionNotifications && messageInOpenTab && messageContainsMention)) {
+            || (appSettings.enableOpenTabMentionNotifications && messageInOpenTab && messageContainsMention)
+            || isDM) {
           if(Notification != null && Notification.supported && appSettings.desktopNotifications) {
             String body = newMessageEvent.message.content;
             // TODO: Properly replace all mentions in body and take code block into account.
             body = body.replaceAll("<@"+newDiscordShellEvent.discordShell.bot.user.id+">", "@"+newDiscordShellEvent.discordShell.bot.user.username);
             final Channel channel = newMessageEvent.message.channel;
-            String icon = "images/robocord.png";
             String title = "DiscordShell";
+            String icon = "images/robocord.png";
 
             if(newDiscordShellEvent.discordShell.bot.user.avatar != null) {
               icon = newDiscordShellEvent.discordShell.bot.user.avatarURL(format: 'png', size: 128);
@@ -221,15 +171,8 @@ void main() {
 
             Notification notification = new Notification(title, body:body, icon:icon);
             notification.onClick.listen((e) {
-              Tab relatedTab = null;
-              if(openedChatTabs[newDiscordShellEvent.discordShell] != null) {
-                relatedTab = openedChatTabs[newDiscordShellEvent.discordShell][newMessageEvent.message.channel.id];
-              }
-              if(relatedTab != null) {
-                tabs.activateTab(relatedTab);
-              } else {
-                // TODO: Open new tab.
-              }
+              Tab tab = openChannel(channel, newDiscordShellEvent.discordShell, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
+              tabs.focusTab(tab);
               notification.close();
             });
           } else {
@@ -249,6 +192,109 @@ void main() {
     requestNotificationPermissionIfNeeded(e.appSettings);
     window.localStorage['settings'] = dartSon.encode(e.appSettings);
   });
+}
+
+Tab openDMChannel(DMChannel channel,
+    DiscordShellBot ds,
+    Map<DiscordShellBot,
+    Map<String, Tab>> openedChatTabs,
+    Tabs tabs,
+    TemplateElement chatControllerTemplate,
+    NodeValidatorBuilder nodeValidatorBuilder) {
+  if(openedChatTabs.containsKey(ds) && openedChatTabs[ds].containsKey(channel.id)) {
+    Tab tab = openedChatTabs[ds][channel.id];
+    return tab;
+  } else {
+    assert(channel != null);
+    Tab dmTab = new Tab(closable: true);
+    DMChatController controller = new DMChatController(
+        ds,
+        channel,
+        dmTab.headerContent,
+        dmTab.tabContent,
+        chatControllerTemplate,
+        nodeValidatorBuilder
+    );
+    if (openedChatTabs[ds] == null) {
+      openedChatTabs[ds] = new HashMap<String, Tab>();
+    }
+    openedChatTabs[ds][channel.id] = dmTab;
+
+    tabs.addTab(dmTab, activate: false);
+
+    dmTab.onClose.listen((closeEvent) async {
+      tabs.removeTab(dmTab);
+      openedChatTabs[ds].remove(channel.id);
+      await dmTab.destroy();
+      await controller.destroy();
+      return null;
+    });
+
+    return dmTab;
+  }
+}
+
+Tab openGuildTextChannel(
+    TextChannel channel,
+    DiscordShellBot ds,
+    Map<DiscordShellBot,
+    Map<String, Tab>> openedChatTabs,
+    Tabs tabs,
+    TemplateElement chatControllerTemplate,
+    NodeValidatorBuilder nodeValidatorBuilder) {
+  if(openedChatTabs.containsKey(ds) && openedChatTabs[ds].containsKey(channel.id)) {
+    final Tab tab = openedChatTabs[ds][channel.id];
+    return tab;
+  } else {
+    final Tab guildTab = new Tab(closable: true);
+    final TextChannelChatController controller = new TextChannelChatController(
+        ds,
+        channel,
+        guildTab.headerContent,
+        guildTab.tabContent,
+        chatControllerTemplate,
+        nodeValidatorBuilder
+    );
+    if(openedChatTabs[ds] == null) {
+      openedChatTabs[ds] = new HashMap<String, Tab>();
+    }
+    openedChatTabs[ds][channel.id] = guildTab;
+
+    tabs.addTab(guildTab, activate: false);
+
+    StreamSubscription<OpenDMChannelRequestEvent> openDMChannelSubscription = controller.onOpenDMChannelRequestEvent.listen((dmOpenRequestEvent) {
+      openDMChannel(dmOpenRequestEvent.channel, dmOpenRequestEvent.ds, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
+    });
+
+    guildTab.onClose.listen((closeEvent) async {
+      tabs.removeTab(guildTab);
+      openedChatTabs[ds].remove(channel.id);
+      await openDMChannelSubscription.cancel();
+      await guildTab.destroy();
+      await controller.destroy();
+      return null;
+    });
+
+    return guildTab;
+  }
+}
+
+Tab openChannel(
+    Channel channel,
+    DiscordShellBot ds,
+    Map<DiscordShellBot,
+        Map<String, Tab>> openedChatTabs,
+    Tabs tabs,
+    TemplateElement chatControllerTemplate,
+    NodeValidatorBuilder nodeValidatorBuilder) {
+  if(channel is DMChannel) {
+    return openDMChannel(channel, ds, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
+  } else if (channel is TextChannel) {
+    return openGuildTextChannel(channel, ds, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
+  } else {
+    assert(false);
+    return null;
+  }
 }
 
 void requestNotificationPermissionIfNeeded(AppSettings appSettings) {

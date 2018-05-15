@@ -62,34 +62,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import 'dart:js' as js;
 import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
 import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
+import './ChatController.dart';
+import './UserTimer.dart';
 
-class UserTimer {
-  String name;
-  num count;
-  String id;
-
-  UserTimer(this.name, this.count, this.id) {
-  }
-}
-
-class DMChatController {
-  final DiscordShellBot _ds;
+class DMChatController extends ChatController {
   final discord.DMChannel _channel;
   final HtmlElement _titleContainer;
   final HtmlElement _view;
   final NodeValidator _nodeValidator;
 
   final DivElement _messages;
-  final DivElement _editbar;
-  DivElement _profilebar;
-  discord.Message _editmsg;
+  final DivElement _editBar;
+  DivElement _profileBar;
+  discord.Message _editMsg;
   discord.User _profile;
-  bool editmod = false;
+  bool _editMod = false;
   final TextAreaElement _textArea;
   final TemplateElement _messageTemplate;
   final TemplateElement _userTemplate;
@@ -99,19 +90,20 @@ class DMChatController {
   bool _typingBusy = false;
 
   DMChatController._internal(
-      this._ds,
+      DiscordShellBot _ds,
       this._channel,
       this._titleContainer,
       this._view,
       this._nodeValidator)
       : _messages = _view.querySelector(".chat-messages"),
-        _profilebar = _view.querySelector(".profile-bar"),
+        _profileBar = _view.querySelector(".profile-bar"),
         _usersList = _view.querySelector(".users-list"),
         _textArea = _view.querySelector("textarea"),
         _typing = _view.querySelector(".typing"),
         _userTemplate = _view.querySelector("template[name=user-template]"),
         _messageTemplate = _view.querySelector("template[name=message-template]"),
-        _editbar = _view.querySelector(".editbarbox")
+        _editBar = _view.querySelector(".editbarbox"),
+        super(_ds)
   {
     assert(_messages != null);
     assert(_usersList != null);
@@ -119,8 +111,8 @@ class DMChatController {
     assert(_typing != null);
     assert(_userTemplate != null);
     assert(_messageTemplate != null);
-    assert(_editbar != null);
-    assert(_profilebar != null);
+    assert(_editBar != null);
+    assert(_profileBar != null);
 
     this._titleContainer.text = _channel.recipient.username;
 
@@ -159,24 +151,23 @@ class DMChatController {
           break;
       }
     }
-    _editbar.style.display = 'none';
-    _profilebar.style.display = 'none';
-    _editbar.children[0].addEventListener('click', (e){
-      _editmsg.delete();
-      _editbar.style.display='none';
+    _editBar.style.display = 'none';
+    _profileBar.style.display = 'none';
+    _editBar.children[0].addEventListener('click', (e){
+      _editMsg.delete();
+      _editBar.style.display='none';
     });
-    _editbar.children[1].addEventListener('click', (e){
-      _textArea.value = _editmsg.content;
+    _editBar.children[1].addEventListener('click', (e){
+      _textArea.value = _editMsg.content;
       _textArea.focus();
-      editmod = true;
-      _editbar.style.display='none';
+      _editMod = true;
+      _editBar.style.display='none';
     });
     const oneSec = const Duration(seconds: 1);
     new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
-    this._ds.bot.onTyping.listen((typer) {
-      //print(typer.user.username+" Typing..."+typer.channel.name); //6 seconds
+    this.ds.bot.onTyping.listen((typer) {
       if (_channel == null ||
-          typer.user.id == this._ds.bot.user.id ||
+          typer.user.id == this.ds.bot.user.id ||
           typer.channel.id != _channel.id) {
         return;
       }
@@ -193,14 +184,14 @@ class DMChatController {
       }
     });
 
-    this._ds.bot.onMessageDelete.listen((message) {
+    this.ds.bot.onMessageDelete.listen((message) {
       if (message.message.channel.id == _channel.id) {
         DivElement msgElement = _messages.querySelector("[title='" + message.message.id + "']");
         msgElement.parent.remove();
       }
     });
 
-    this._ds.bot.onMessageUpdate.listen((message) {
+    this.ds.bot.onMessageUpdate.listen((message) {
       if (message.newMessage.channel.id == _channel.id) {
         DivElement msgElement = _messages.querySelector("[title='" + message.oldMessage.id + "']");
         msgElement.innerHtml = markdownToHtml(message.newMessage.content);
@@ -216,7 +207,7 @@ class DMChatController {
       this._titleContainer.style.color = "";
       _textArea.focus();
     });
-    this._ds.bot.onMessage.listen((discord.MessageEvent e) {
+    this.ds.bot.onMessage.listen((discord.MessageEvent e) {
       assert(e.message.channel != null);
       if (e.message.channel.id == this._channel.id) {
         if (this._view.parent.style.display == "none")
@@ -230,25 +221,25 @@ class DMChatController {
         });
       }
     });
-    _profilebar.querySelector(".profile-roles").remove();
+    _profileBar.querySelector(".profile-roles").remove();
     _profile = _channel.recipient;
-    _usersList.innerHtml = _profilebar.outerHtml;
-    _profilebar = _usersList.firstChild;
-    ImageElement profileImg = _profilebar.querySelector(".profile-icon");
+    _usersList.innerHtml = _profileBar.outerHtml;
+    _profileBar = _usersList.firstChild;
+    ImageElement profileImg = _profileBar.querySelector(".profile-icon");
     AnchorElement anchor = profileImg.parent;
     profileImg.src = _profile.avatar == null ? "images/iconless.png" : _profile.avatarURL(format: 'png', size: 128);
     anchor.href = _profile.avatar == null ? "images/iconless.png" : _profile.avatarURL(format: 'png',size: 1024);
-    _profilebar.querySelector(".profile-name-tag img").remove();
-    _profilebar.querySelector(".profile-name").innerHtml = _profile.username;
-    _profilebar.querySelector(".discriminator").innerHtml = "#"+_profile.discriminator;
-    _profilebar.querySelector(".profile-info").remove();
+    _profileBar.querySelector(".profile-name-tag img").remove();
+    _profileBar.querySelector(".profile-name").innerHtml = _profile.username;
+    _profileBar.querySelector(".discriminator").innerHtml = "#"+_profile.discriminator;
+    _profileBar.querySelector(".profile-info").remove();
     String ucreate = _profile.createdAt.toLocal().toString();
     ucreate = ucreate.substring(0,ucreate.indexOf("."));
-    _profilebar.querySelectorAll(".profile-info")[1].remove();
-    _profilebar.querySelectorAll(".profile-info")[1].remove();
-    _profilebar.querySelector(".profile-info").style.borderTop = "2px solid grey";
-    _profilebar.querySelector(".profile-right").innerHtml = ucreate;
-    _profilebar.querySelectorAll(".profile-right")[1].innerHtml = _profile.id;
+    _profileBar.querySelectorAll(".profile-info")[1].remove();
+    _profileBar.querySelectorAll(".profile-info")[1].remove();
+    _profileBar.querySelector(".profile-info").style.borderTop = "2px solid grey";
+    _profileBar.querySelector(".profile-right").innerHtml = ucreate;
+    _profileBar.querySelectorAll(".profile-right")[1].innerHtml = _profile.id;
     ButtonElement historyButton = _view.querySelector(".more-messages");
     historyButton.addEventListener('click', (e) {
       _channel
@@ -267,6 +258,9 @@ class DMChatController {
         list.reversed.forEach((msg) {
           this.addMessage(msg, true);
         });
+      }).catchError((e) {
+        print(e);
+        throw e;
       });
     });
 
@@ -274,10 +268,10 @@ class DMChatController {
     chatButton.addEventListener('click', (e) {
       String text = this._textArea.value;
       if (text.length > 0) {
-        if (editmod==true){
-          if (text!=_editmsg.content)
-            _editmsg.edit(content: text);
-          editmod = false;
+        if (_editMod==true){
+          if (text!=_editMsg.content)
+            _editMsg.edit(content: text);
+          _editMod = false;
         }else{
           _channel.send(content: text);
           _messages.scrollTo(0,_messages.scrollHeight);
@@ -299,8 +293,8 @@ class DMChatController {
       }
     });
 
-    this._ds.bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e) {
-      for (discord.Guild guild in this._ds.bot.guilds.values) {
+    this.ds.bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e) {
+      for (discord.Guild guild in this.ds.bot.guilds.values) {
         guild.members.values.forEach((member) {
           if (member.id == e.newMember.id) {
             member.status = e.newMember.status;
@@ -361,14 +355,14 @@ class DMChatController {
     ImageElement avatar = msgFragment.querySelector(".user-avatar");
     HtmlElement username = msgFragment.querySelector(".user-name");
     DivElement content = msgFragment.querySelector(".content");
-    if (msg.author.id == _ds.bot.user.id){
+    if (msg.author.id == this.ds.bot.user.id){
       username.className += " Hhover";
       username.addEventListener('click', (e) {
-        _editbar.style.top = username.parent.getBoundingClientRect().topRight.y.toString()+"px";
-        _editbar.style.right = (username.parent.getBoundingClientRect().topRight.x+70).toString()+"px";
-        _editbar.style.display = "";
-        _editmsg = msg;
-        _editbar.focus();
+        _editBar.style.top = username.parent.getBoundingClientRect().topRight.y.toString()+"px";
+        _editBar.style.right = (username.parent.getBoundingClientRect().topRight.x+70).toString()+"px";
+        _editBar.style.display = "";
+        _editMsg = msg;
+        _editBar.focus();
       });
     }
     if (msg.author.avatar == null) {
@@ -379,9 +373,7 @@ class DMChatController {
     }
     username.title = msg.author.id;
     username.text = msg.author.username;
-    if (!top&&document.hidden)
-      js.context.callMethod('notifyMe',[_channel.recipient.username,_channel.recipient.avatarURL(),msg.author.username+": "+msg.content.replaceAll("<@"+_ds.bot.user.id+">", "@"+_ds.bot.user.username),_titleContainer]);
-    msg.content = msg.content.replaceAll("<@"+_ds.bot.user.id+">", "@"+_ds.bot.user.username);
+    msg.content = msg.content.replaceAll("<@"+this.ds.bot.user.id+">", "@"+this.ds.bot.user.username);
     content.innerHtml = markdownToHtml(msg.content);
     content.title = msg.id;
     if (!this._nodeValidator.allowsElement(content)) {

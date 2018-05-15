@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:html';
 import 'dart:async';
 import 'dart:collection';
+import 'package:discord/discord.dart';
 import 'package:dartson/dartson.dart';
 import 'package:discordshell/src/tabs/Tabs.dart';
 import 'package:discordshell/src/tabs/Tab.dart';
@@ -45,9 +46,6 @@ import 'package:discordshell/src/chat/TextChannelChatController.dart';
 import 'package:discordshell/src/chat/DMChatController.dart';
 import 'package:discordshell/src/SettingsController.dart';
 
-final DiscordShellBotCollection bots = new DiscordShellBotCollection();
-final AppSettings appSettings = new AppSettings();
-
 void main() {
   final Element tabsHTML = querySelector(".tabs");
   final TemplateElement botsControllerTemplate = querySelector('template#discord-shell-bots-controller-template');
@@ -56,12 +54,15 @@ void main() {
   final TemplateElement settingsTemplate = querySelector('template#settings-template');
   final Node settingsButtonElement = querySelector('header.site-header>svg');
 
-  final Dartson dson = new Dartson.JSON();
+  final DiscordShellBotCollection bots = new DiscordShellBotCollection();
+  final AppSettings appSettings = new AppSettings();
+  final Map<DiscordShellBot, Map<String, Tab>> openedChatTabs = new HashMap<DiscordShellBot, Map<String, Tab>>();
+  final Dartson dartSon = new Dartson.JSON();
 
   final String settingsStr = window.localStorage['settings'];
   if(settingsStr != null) {
     assert(settingsStr.length >= 0);
-    final Object obj = dson.decode(window.localStorage['settings'], appSettings);
+    final Object obj = dartSon.decode(window.localStorage['settings'], appSettings);
     assert(obj == appSettings);
   }
 
@@ -77,8 +78,6 @@ void main() {
 
   final DocumentFragment helpFragment = document.importNode(helpTemplate.content, true);
   final Tabs tabs = new Tabs(tabsHTML, helpFragment.querySelector('article.help'));
-
-  final Map<DiscordShellBot, Map<String, Tab>> openedChatTabs = new HashMap<DiscordShellBot, Map<String, Tab>>();
 
   tabs.onNewTabRequest.listen((e) {
     final Tab botsControllerTab = new Tab(closable: true);
@@ -183,9 +182,72 @@ void main() {
     });
   });
 
+  bots.onNewDiscordShell.listen((newDiscordShellEvent) {
+    newDiscordShellEvent.discordShell.bot.onMessage.listen((newMessageEvent) {
+
+      bool messageInOpenTab = (openedChatTabs[newDiscordShellEvent.discordShell] != null) && (openedChatTabs[newDiscordShellEvent.discordShell][newMessageEvent.message.channel.id] != null);
+      bool messageContainsMention = newMessageEvent.message.content.contains("<@"+newDiscordShellEvent.discordShell.bot.user.id+">");
+
+      if(appSettings.enableNotifications) {
+        if((appSettings.enableMentionNotifications && messageContainsMention)
+            || (appSettings.enableOpenTabNotifications && messageInOpenTab)
+            || (appSettings.enableOpenTabMentionNotifications && messageInOpenTab && messageContainsMention)) {
+          if(Notification != null && Notification.supported && appSettings.desktopNotifications) {
+            String body = newMessageEvent.message.content;
+            // TODO: Properly replace all mentions in body and take code block into account.
+            body = body.replaceAll("<@"+newDiscordShellEvent.discordShell.bot.user.id+">", "@"+newDiscordShellEvent.discordShell.bot.user.username);
+            final Channel channel = newMessageEvent.message.channel;
+            String icon = "images/robocord.png";
+            String title = "DiscordShell";
+
+            if(newDiscordShellEvent.discordShell.bot.user.avatar != null) {
+              icon = newDiscordShellEvent.discordShell.bot.user.avatarURL(format: 'png', size: 128);
+            }
+
+            if(channel is DMChannel) {
+              title = channel.recipient.username;
+              icon = "images/iconless.png";
+              if(channel.recipient.avatar != null) {
+                icon = channel.recipient.avatarURL(format: 'png', size: 128);
+              }
+            } else if(channel is TextChannel) {
+              title = channel.guild.name;
+              if(channel.guild.icon != null) {
+                icon = channel.guild.iconURL(format: 'png', size: 128);
+              }
+            } else {
+              assert(false);
+            }
+
+            Notification notification = new Notification(title, body:body, icon:icon);
+            notification.onClick.listen((e) {
+              Tab relatedTab = null;
+              if(openedChatTabs[newDiscordShellEvent.discordShell] != null) {
+                relatedTab = openedChatTabs[newDiscordShellEvent.discordShell][newMessageEvent.message.channel.id];
+              }
+              if(relatedTab != null) {
+                tabs.activateTab(relatedTab);
+              } else {
+                // TODO: Open new tab.
+              }
+              notification.close();
+            });
+          } else {
+            // TODO: Write proper in-browser notifications.
+            print({
+              'type': 'notification',
+              'channel': newMessageEvent.message.channel,
+              'message': newMessageEvent.message,
+            });
+          }
+        }
+      }
+    });
+  });
+
   appSettings.onAppSettingsChangedEvent.listen((e) {
     requestNotificationPermissionIfNeeded(e.appSettings);
-    window.localStorage['settings'] = dson.encode(e.appSettings);
+    window.localStorage['settings'] = dartSon.encode(e.appSettings);
   });
 }
 

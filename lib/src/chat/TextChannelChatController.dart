@@ -31,25 +31,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import 'dart:js' as js;
 import 'package:discord/discord.dart' as discord;
 import 'package:discord/browser.dart' as discord;
 import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
 import '../model/OpenDMChannelRequestEvent.dart';
+import './ChatController.dart';
+import './UserTimer.dart';
 
-
-class UserTimer {
-  String name;
-  num count;
-  String id;
-
-  UserTimer(this.name, this.count, this.id) {
-  }
-}
-
-class TextChannelChatController {
-  final DiscordShellBot _ds;
+class TextChannelChatController extends ChatController {
   final discord.TextChannel _channel;
   final HtmlElement _titleContainer;
   final HtmlElement _view;
@@ -58,11 +48,11 @@ class TextChannelChatController {
   final Stream<OpenDMChannelRequestEvent> onOpenDMChannelRequestEvent;
 
   final DivElement _messages;
-  final DivElement _editbar;
-  final DivElement _profilebar;
-  discord.Message _editmsg;
+  final DivElement _editBar;
+  final DivElement _profileBar;
+  discord.Message _editMsg;
   discord.Member _profile;
-  bool editmod = false;
+  bool _editMod = false;
   final TextAreaElement _textArea;
   final TemplateElement _messageTemplate;
   final TemplateElement _userTemplate;
@@ -71,8 +61,8 @@ class TextChannelChatController {
   final DivElement _typing;
   bool _typingBusy = false;
 
-  TextChannelChatController._internal(
-      this._ds,
+  TextChannelChatController._internal (
+      DiscordShellBot _ds,
       this._channel,
       this._titleContainer,
       this._view,
@@ -80,13 +70,14 @@ class TextChannelChatController {
       this.onOpenDMChannelRequestEvent,
       this._nodeValidator)
       : _messages = _view.querySelector(".chat-messages"),
-        _profilebar = _view.querySelector(".profile-bar"),
+        _profileBar = _view.querySelector(".profile-bar"),
         _usersList = _view.querySelector(".users-list"),
         _textArea = _view.querySelector("textarea"),
         _typing = _view.querySelector(".typing"),
         _userTemplate = _view.querySelector("template[name=user-template]"),
         _messageTemplate = _view.querySelector("template[name=message-template]"),
-        _editbar = _view.querySelector(".editbarbox")
+        _editBar = _view.querySelector(".editbarbox"),
+        super(_ds)
   {
     assert(_messages != null);
     assert(_usersList != null);
@@ -94,10 +85,10 @@ class TextChannelChatController {
     assert(_typing != null);
     assert(_userTemplate != null);
     assert(_messageTemplate != null);
-    assert(_editbar != null);
-    assert(_profilebar != null);
+    assert(_editBar != null);
+    assert(_profileBar != null);
           
-    ImageElement titleIcon = new ImageElement( src: this._ds.bot.user.avatarURL(format: 'png'), width: 128, height: 128);
+    ImageElement titleIcon = new ImageElement( src: this.ds.bot.user.avatarURL(format: 'png'), width: 128, height: 128);
     titleIcon.className = "user-avatar-tab-header";
     SpanElement titleText = new SpanElement();
     titleText.text = _channel.name;
@@ -141,24 +132,23 @@ class TextChannelChatController {
           break;
       }
     }
-    _editbar.style.display = 'none';
-    _profilebar.style.display = 'none';
-    _editbar.children[0].addEventListener('click', (e){
-      _editmsg.delete();
-      _editbar.style.display='none';
+    _editBar.style.display = 'none';
+    _profileBar.style.display = 'none';
+    _editBar.children[0].addEventListener('click', (e){
+      _editMsg.delete();
+      _editBar.style.display='none';
     });
-    _editbar.children[1].addEventListener('click', (e){
-      _textArea.value = _editmsg.content;
+    _editBar.children[1].addEventListener('click', (e){
+      _textArea.value = _editMsg.content;
       _textArea.focus();
-      editmod = true;
-      _editbar.style.display='none';
+      _editMod = true;
+      _editBar.style.display='none';
     });
     const oneSec = const Duration(seconds: 1);
     new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
-    this._ds.bot.onTyping.listen((typer) {
-      //print(typer.user.username+" Typing..."+typer.channel.name); //6 seconds
+    this.ds.bot.onTyping.listen((typer) {
       if (_channel == null ||
-          typer.user.id == this._ds.bot.user.id ||
+          typer.user.id == this.ds.bot.user.id ||
           typer.channel.id != _channel.id) {
         return;
       }
@@ -175,14 +165,14 @@ class TextChannelChatController {
       }
     });
 
-    this._ds.bot.onMessageDelete.listen((message) {
+    this.ds.bot.onMessageDelete.listen((message) {
       if (message.message.channel.id == _channel.id) {
         DivElement msgelement = _messages.querySelector("[title='" + message.message.id + "']");
         msgelement.parent.remove();
       }
     });
 
-    this._ds.bot.onMessageUpdate.listen((message) {
+    this.ds.bot.onMessageUpdate.listen((message) {
       if (message.newMessage.channel.id == _channel.id) {
         DivElement msgElement = _messages.querySelector("[title='" + message.oldMessage.id + "']");
         msgElement.innerHtml = markdownToHtml(message.newMessage.content);
@@ -194,10 +184,10 @@ class TextChannelChatController {
         }
       }
     });
-    _profilebar.querySelector(".profile-name-tag").children[0].addEventListener('click', (e){
-      _profilebar.style.display = "none";
+    _profileBar.querySelector(".profile-name-tag").children[0].addEventListener('click', (e){
+      _profileBar.style.display = "none";
       _profile.getChannel().then((k){
-        OpenDMChannelRequestEvent e = new OpenDMChannelRequestEvent(this._ds, k);
+        OpenDMChannelRequestEvent e = new OpenDMChannelRequestEvent(this.ds, k);
         _onOpenDMChannelRequestEventStreamController.add(e);
       });
     });
@@ -205,7 +195,7 @@ class TextChannelChatController {
       this._titleContainer.style.color = "";
       _textArea.focus();
     });
-    this._ds.bot.onMessage.listen((discord.MessageEvent e) {
+    this.ds.bot.onMessage.listen((discord.MessageEvent e) {
       assert(e.message.channel != null);
       if (e.message.channel == this._channel) {
         if (this._view.parent.style.display == "none")
@@ -241,6 +231,9 @@ class TextChannelChatController {
         list.reversed.forEach((msg) {
           this.addMessage(msg, true);
         });
+      }).catchError((e) {
+        print(e);
+        throw e;
       });
     });
 
@@ -248,10 +241,10 @@ class TextChannelChatController {
     chatButton.addEventListener('click', (e) {
       String text = this._textArea.value;
       if (text.length > 0) {
-        if (editmod==true){
-          if (text!=_editmsg.content)
-            _editmsg.edit(content: text);
-          editmod = false;
+        if (_editMod==true){
+          if (text!=_editMsg.content)
+            _editMsg.edit(content: text);
+          _editMod = false;
         }else{
           _channel.send(content: text);
           _messages.scrollTo(0,_messages.scrollHeight);
@@ -273,8 +266,8 @@ class TextChannelChatController {
       }
     });
 
-    this._ds.bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e) {
-      for (discord.Guild guild in this._ds.bot.guilds.values) {
+    this.ds.bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e) {
+      for (discord.Guild guild in this.ds.bot.guilds.values) {
         guild.members.values.forEach((member) {
           if (member.id == e.newMember.id) {
             member.status = e.newMember.status;
@@ -366,35 +359,35 @@ class TextChannelChatController {
 
     _usersList.append(userFragment);
     userItem.addEventListener('click', (e) {
-      _profilebar.style.display = "";
+      _profileBar.style.display = "";
       _profile = user;
-      ImageElement profileimg = _profilebar.querySelector(".profile-icon");
-      DivElement roleslist = _profilebar.querySelector(".profile-roles");
-      AnchorElement ancho = profileimg.parent;
-      profileimg.src = user.avatar == null ? "images/iconless.png" : user.avatarURL(format: 'png', size: 128);
-      ancho.href = user.avatar == null ? "images/iconless.png" : user.avatarURL(format: 'png',size: 1024);
-      _profilebar.querySelector(".profile-name").innerHtml = user.username;
-      _profilebar.querySelector(".discriminator").innerHtml = "#"+user.discriminator;
-      _profilebar.querySelectorAll(".profile-right")[0].innerHtml = user.nickname == null ? user.username : user.nickname;
+      ImageElement profileImg = _profileBar.querySelector(".profile-icon");
+      DivElement rolesList = _profileBar.querySelector(".profile-roles");
+      AnchorElement anchor = profileImg.parent;
+      profileImg.src = user.avatar == null ? "images/iconless.png" : user.avatarURL(format: 'png', size: 128);
+      anchor.href = user.avatar == null ? "images/iconless.png" : user.avatarURL(format: 'png',size: 1024);
+      _profileBar.querySelector(".profile-name").innerHtml = user.username;
+      _profileBar.querySelector(".discriminator").innerHtml = "#"+user.discriminator;
+      _profileBar.querySelectorAll(".profile-right")[0].innerHtml = user.nickname == null ? user.username : user.nickname;
       String ucreate = user.createdAt.toLocal().toString();
-      _profilebar.querySelectorAll(".profile-right")[1].innerHtml = ucreate.substring(0,ucreate.indexOf("."));
+      _profileBar.querySelectorAll(".profile-right")[1].innerHtml = ucreate.substring(0,ucreate.indexOf("."));
       String ujoined = user.joinedAt.toLocal().toString();
-      _profilebar.querySelectorAll(".profile-right")[2].innerHtml = ujoined.substring(0,ujoined.indexOf("."));
-      _profilebar.querySelectorAll(".profile-right")[3].innerHtml = user.game==null ? "" : user.game.name;
-      _profilebar.querySelectorAll(".profile-right")[4].innerHtml = user.id;
-      while (roleslist.hasChildNodes()) {
-        roleslist.firstChild.remove();
+      _profileBar.querySelectorAll(".profile-right")[2].innerHtml = ujoined.substring(0,ujoined.indexOf("."));
+      _profileBar.querySelectorAll(".profile-right")[3].innerHtml = user.game==null ? "" : user.game.name;
+      _profileBar.querySelectorAll(".profile-right")[4].innerHtml = user.id;
+      while (rolesList.hasChildNodes()) {
+        rolesList.firstChild.remove();
       }
       user.roles.forEach((f){
-        ParagraphElement rolefragment = new ParagraphElement();
-        rolefragment.className = "profile-role";
-        rolefragment.innerHtml = user.guild.roles[f].name;
-        rolefragment.style.color = user.guild.roles[f].color==null ? "#99aab5" : "#"+user.guild.roles[f].color.toRadixString(16);
-        rolefragment.style.borderColor = user.guild.roles[f].color==null ? "#99aab5" : "#"+user.guild.roles[f].color.toRadixString(16);
-        roleslist.append(rolefragment);
+        ParagraphElement roleFragment = new ParagraphElement();
+        roleFragment.className = "profile-role";
+        roleFragment.innerHtml = user.guild.roles[f].name;
+        roleFragment.style.color = user.guild.roles[f].color==null ? "#99aab5" : "#"+user.guild.roles[f].color.toRadixString(16);
+        roleFragment.style.borderColor = user.guild.roles[f].color==null ? "#99aab5" : "#"+user.guild.roles[f].color.toRadixString(16);
+        rolesList.append(roleFragment);
       });
-      _profilebar.style.top = (userItem.getBoundingClientRect().topLeft.y-_profilebar.clientHeight/10+_profilebar.clientHeight)>document.documentElement.clientHeight ? (document.documentElement.clientHeight-_profilebar.clientHeight-10).toString()+"px" : (userItem.getBoundingClientRect().topLeft.y-_profilebar.clientHeight/10).toString()+"px";
-      _profilebar.style.left = (userItem.getBoundingClientRect().topLeft.x-_profilebar.clientWidth-10).toString()+"px";
+      _profileBar.style.top = (userItem.getBoundingClientRect().topLeft.y-_profileBar.clientHeight/10+_profileBar.clientHeight)>document.documentElement.clientHeight ? (document.documentElement.clientHeight-_profileBar.clientHeight-10).toString()+"px" : (userItem.getBoundingClientRect().topLeft.y-_profileBar.clientHeight/10).toString()+"px";
+      _profileBar.style.left = (userItem.getBoundingClientRect().topLeft.x-_profileBar.clientWidth-10).toString()+"px";
     });
   }
   addMessage(discord.Message msg, bool top){
@@ -402,14 +395,14 @@ class TextChannelChatController {
     ImageElement avatar = msgFragment.querySelector(".user-avatar");
     HtmlElement username = msgFragment.querySelector(".user-name");
     DivElement content = msgFragment.querySelector(".content");
-    if (msg.author.id == _ds.bot.user.id){
+    if (msg.author.id == this.ds.bot.user.id){
       username.className += " Hhover";
       username.addEventListener('click', (e) {
-        _editbar.style.top = username.parent.getBoundingClientRect().topRight.y.toString()+"px";
-        _editbar.style.right = (username.parent.getBoundingClientRect().topRight.x+70).toString()+"px";
-        _editbar.style.display = "";
-        _editmsg = msg;
-        _editbar.focus();
+        _editBar.style.top = username.parent.getBoundingClientRect().topRight.y.toString()+"px";
+        _editBar.style.right = (username.parent.getBoundingClientRect().topRight.x+70).toString()+"px";
+        _editBar.style.display = "";
+        _editMsg = msg;
+        _editBar.focus();
       });
     }
     if (msg.author.avatar == null) {
@@ -420,9 +413,7 @@ class TextChannelChatController {
     }
     username.title = msg.author.id;
     username.text = msg.author.username;
-    if (msg.content.contains("<@"+_ds.bot.user.id+">")&&!top&&document.hidden)
-      js.context.callMethod('notifyMe',[_channel.name,_channel.guild.iconURL(),msg.author.username+": "+msg.content.replaceAll("<@"+_ds.bot.user.id+">", "@"+_ds.bot.user.username),_titleContainer]);
-    msg.content = msg.content.replaceAll("<@"+_ds.bot.user.id+">", "@"+_ds.bot.user.username);
+    msg.content = msg.content.replaceAll("<@"+this.ds.bot.user.id+">", "@"+this.ds.bot.user.username);
     content.innerHtml = markdownToHtml(msg.content);
     content.title = msg.id;
     if (!this._nodeValidator.allowsElement(content)) {
@@ -433,7 +424,7 @@ class TextChannelChatController {
     if (top) {
       _messages.insertBefore(msgFragment, _messages.querySelector(".message"));
     } else {
-      var check = _messages.querySelectorAll(".message");
+      ElementList check = _messages.querySelectorAll(".message");
       if (check.length != 0) {
         ImageElement lastMessage = check[check.length - 1].querySelector(".user-avatar");
         if (lastMessage.src == avatar.src) {
@@ -446,6 +437,7 @@ class TextChannelChatController {
     }
   }
   Future<Null> destroy() async {
+    await this._onOpenDMChannelRequestEventStreamController.close();
     return null;
   }
 }

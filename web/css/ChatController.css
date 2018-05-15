@@ -219,7 +219,7 @@ img.user-avatar {
 }
 
 .message > .user-name {
-  width: 12em;
+  max-width: 12em;
   height: 100%;
   display: inline-block;
 }

@@ -21,7 +21,7 @@ git reset --hard "1e9e7ff5812b5b7f72694aac4bf58bcb11877f15"
 pub get
 ```
 
-#### Run Development server
+#### Run development server
 
 ```sh
 pub serve

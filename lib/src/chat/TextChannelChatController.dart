@@ -185,11 +185,13 @@ class TextChannelChatController extends ChatController {
       }
     });
     _profileBar.querySelector(".profile-name-tag").children[0].addEventListener('click', (e){
+      if(!_profile.bot) {
       _profileBar.style.display = "none";
       _profile.getChannel().then((k){
         OpenDMChannelRequestEvent e = new OpenDMChannelRequestEvent(this.ds, k);
         _onOpenDMChannelRequestEventStreamController.add(e);
       });
+      }
     });
     this._titleContainer.addEventListener('click', (e){
       this._titleContainer.style.color = "";
@@ -361,6 +363,11 @@ class TextChannelChatController extends ChatController {
     userItem.addEventListener('click', (e) {
       _profileBar.style.display = "";
       _profile = user;
+      if (_profile.bot){
+        _profilebar.querySelector(".profile-name-tag").children[0].style.opacity="1";
+      }else {
+        _profilebar.querySelector(".profile-name-tag").children[0].style.opacity="0";
+      }
       ImageElement profileImg = _profileBar.querySelector(".profile-icon");
       DivElement rolesList = _profileBar.querySelector(".profile-roles");
       AnchorElement anchor = profileImg.parent;

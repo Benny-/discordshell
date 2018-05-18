@@ -197,6 +197,7 @@ bot-tag{
 .user-item{
   display: flex;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .user-item > * {

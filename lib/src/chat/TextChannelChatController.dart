@@ -364,9 +364,9 @@ class TextChannelChatController extends ChatController {
       _profileBar.style.display = "";
       _profile = user;
       if (_profile.bot){
-        _profilebar.querySelector(".profile-name-tag").children[0].style.opacity="1";
+        _profileBar.querySelector(".profile-name-tag").children[0].style.opacity="1";
       }else {
-        _profilebar.querySelector(".profile-name-tag").children[0].style.opacity="0";
+        _profileBar.querySelector(".profile-name-tag").children[0].style.opacity="0";
       }
       ImageElement profileImg = _profileBar.querySelector(".profile-icon");
       DivElement rolesList = _profileBar.querySelector(".profile-roles");

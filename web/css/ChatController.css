@@ -223,6 +223,7 @@ img.user-avatar {
   max-width: 12em;
   height: 100%;
   display: inline-block;
+  color: #3eb522;
 }
 
 .message > .content {

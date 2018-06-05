@@ -53,7 +53,6 @@ class NotificationPopup {
 
       animator = (tick) {
         remaining = endOfFade.difference(new DateTime.now());
-        print(remaining);
         this._view.style.opacity = (remaining.inMilliseconds / 1000).toString();
         requestAnimationFrameInt = 0;
         if(remaining.inMilliseconds > 0) {

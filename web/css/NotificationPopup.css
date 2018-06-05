@@ -34,7 +34,8 @@ div.notification {
   max-width: 20em;
 }
 
-div.notification > h4 {
+h4.notification-title {
+  display: inline;
   margin: 0;
   overflow: hidden;
 }

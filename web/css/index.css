@@ -79,6 +79,11 @@ div.self-contained-block {
   border: 0.1em solid #202225;
 }
 
+img.user-avatar {
+  width: 1em;
+  height: 1em;
+}
+
 article.help {
   width: 100%;
   text-align: center;

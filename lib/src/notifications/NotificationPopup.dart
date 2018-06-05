@@ -38,6 +38,10 @@ class NotificationPopup {
   NotificationPopup(this._view, String title, String body, String icon) {
     this._view.querySelector("h4").text = title;
     this._view.querySelector("small").text = body;
+    if(icon != null) {
+      ImageElement img = this._view.querySelector("img");
+      img.src = icon;
+    }
   }
 
   addClickEventListener(EventListener listener) {

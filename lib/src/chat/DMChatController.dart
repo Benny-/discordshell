@@ -312,7 +312,6 @@ class DMChatController extends ChatController {
         msg.remove();
       }
 
-
       List<discord.Message> list = new List<discord.Message>();
 
       for (final msg in messages.values)

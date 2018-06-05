@@ -136,6 +136,7 @@ void main() {
       bool messageInOpenTab = (openedChatTabs[newDiscordShellEvent.discordShell] != null) && (openedChatTabs[newDiscordShellEvent.discordShell][newMessageEvent.message.channel.id] != null);
       bool messageContainsMention = newMessageEvent.message.content.contains("<@"+newDiscordShellEvent.discordShell.bot.user.id+">");
       bool isDM = newMessageEvent.message.channel is DMChannel;
+      bool isOwnMessage = newMessageEvent.message.author.id == newDiscordShellEvent.discordShell.bot.user.id;
 
       if(isDM) {
         openDMChannel(newMessageEvent.message.channel,
@@ -146,7 +147,7 @@ void main() {
             nodeValidatorBuilder);
       }
 
-      if(appSettings.enableNotifications) {
+      if(appSettings.enableNotifications && !isOwnMessage) {
         if((appSettings.enableMentionNotifications && messageContainsMention)
             || (appSettings.enableOpenTabNotifications && messageInOpenTab)
             || (appSettings.enableOpenTabMentionNotifications && messageInOpenTab && messageContainsMention)

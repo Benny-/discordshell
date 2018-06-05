@@ -1,0 +1,13 @@
+{
+  "type": "link",
+  "version": "1.0",
+  "title": "DiscordShell: Control discord bots",
+  "url": "images/act.png",
+  "author_name": "Migaaresno",
+  "author_url": "https://github.com/Benny-",
+  "provider_name": "DiscordShell",
+  "provider_url": "https://discordshell.nl/",
+  "thumbnail_url": "https://discordshell.nl/images/robocord.png",
+  "thumbnail_width": 64,
+  "thumbnail_height": 64
+}

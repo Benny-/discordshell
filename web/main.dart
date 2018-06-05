@@ -34,6 +34,8 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:discord/discord.dart';
 import 'package:dartson/dartson.dart';
+import 'package:discordshell/src/notifications/NotificationArea.dart';
+import 'package:discordshell/src/notifications/NotificationPopup.dart';
 import 'package:discordshell/src/tabs/Tabs.dart';
 import 'package:discordshell/src/tabs/Tab.dart';
 import 'package:discordshell/src/model/AppSettings.dart';
@@ -53,6 +55,7 @@ void main() {
   final TemplateElement helpTemplate = querySelector('template#help-template');
   final TemplateElement settingsTemplate = querySelector('template#settings-template');
   final Node settingsButtonElement = querySelector('header.site-header>svg');
+  final NotificationArea notificationArea = new NotificationArea(querySelector('div#notification-area'));
 
   final DiscordShellBotCollection bots = new DiscordShellBotCollection();
   final AppSettings appSettings = new AppSettings();
@@ -148,33 +151,34 @@ void main() {
             || (appSettings.enableOpenTabNotifications && messageInOpenTab)
             || (appSettings.enableOpenTabMentionNotifications && messageInOpenTab && messageContainsMention)
             || isDM) {
+
+          String body = newMessageEvent.message.content;
+          // TODO: Properly replace all mentions in body and take code block into account.
+          body = body.replaceAll("<@"+newDiscordShellEvent.discordShell.bot.user.id+">", "@"+newDiscordShellEvent.discordShell.bot.user.username);
+          final Channel channel = newMessageEvent.message.channel;
+          String title = "DiscordShell";
+          String icon = "images/robocord.png";
+
+          if(newDiscordShellEvent.discordShell.bot.user.avatar != null) {
+            icon = newDiscordShellEvent.discordShell.bot.user.avatarURL(format: 'png', size: 128);
+          }
+
+          if(channel is DMChannel) {
+            title = channel.recipient.username;
+            icon = "images/iconless.png";
+            if(channel.recipient.avatar != null) {
+              icon = channel.recipient.avatarURL(format: 'png', size: 128);
+            }
+          } else if(channel is TextChannel) {
+            title = channel.guild.name;
+            if(channel.guild.icon != null) {
+              icon = channel.guild.iconURL(format: 'png', size: 128);
+            }
+          } else {
+            assert(false);
+          }
+
           if(Notification != null && Notification.supported && appSettings.desktopNotifications) {
-            String body = newMessageEvent.message.content;
-            // TODO: Properly replace all mentions in body and take code block into account.
-            body = body.replaceAll("<@"+newDiscordShellEvent.discordShell.bot.user.id+">", "@"+newDiscordShellEvent.discordShell.bot.user.username);
-            final Channel channel = newMessageEvent.message.channel;
-            String title = "DiscordShell";
-            String icon = "images/robocord.png";
-
-            if(newDiscordShellEvent.discordShell.bot.user.avatar != null) {
-              icon = newDiscordShellEvent.discordShell.bot.user.avatarURL(format: 'png', size: 128);
-            }
-
-            if(channel is DMChannel) {
-              title = channel.recipient.username;
-              icon = "images/iconless.png";
-              if(channel.recipient.avatar != null) {
-                icon = channel.recipient.avatarURL(format: 'png', size: 128);
-              }
-            } else if(channel is TextChannel) {
-              title = channel.guild.name;
-              if(channel.guild.icon != null) {
-                icon = channel.guild.iconURL(format: 'png', size: 128);
-              }
-            } else {
-              assert(false);
-            }
-
             Notification notification = new Notification(title, body:body, icon:icon);
             notification.onClick.listen((e) {
               Tab tab = openChannel(channel, newDiscordShellEvent.discordShell, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
@@ -182,12 +186,13 @@ void main() {
               notification.close();
             });
           } else {
-            // TODO: Write proper in-browser notifications.
-            print({
-              'type': 'notification',
-              'channel': newMessageEvent.message.channel,
-              'message': newMessageEvent.message,
+            NotificationPopup notification = notificationArea.notification(title, body, icon);
+            notification.addClickEventListener((E) {
+              Tab tab = openChannel(channel, newDiscordShellEvent.discordShell, openedChatTabs, tabs, chatControllerTemplate, nodeValidatorBuilder);
+              tabs.focusTab(tab);
+              notification.destroy();
             });
+            notification.start();
           }
         }
       }

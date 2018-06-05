@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Discord Shell</title>
   <meta name="Description" content="Control a discord bot. See what a bot can see and chat as one.">
+  <link rel="stylesheet" href="css/NotificationArea.css">
+  <link rel="stylesheet" href="css/NotificationPopup.css">
   <link rel="stylesheet" href="css/BotsController.css">
   <link rel="stylesheet" href="css/DiscordShellBot.css">
   <link rel="stylesheet" href="css/GuildController.css">
@@ -172,6 +174,19 @@
     </div>
   </div>
 </template>
+
+<div id="notification-area">
+  <template id="notification-template">
+    <div class="notification self-contained-block">
+      <h4>
+        Notification title
+      </h4>
+      <small>
+        Notification text
+      </small>
+    </div>
+  </template>
+</div>
 
 <template id="settings-template">
   <form name="settings">

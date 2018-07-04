@@ -12,10 +12,7 @@ A pure web application to control discord bots. See what they see and chat as a 
 Execute the following commands in the project directory.
 
 ```sh
-git clone https://github.com/Benny-/nyx.git
-```
-
-```sh
+git clone "https://github.com/Benny-/nyx.git"
 pub get
 ```
 

@@ -72,17 +72,11 @@ import './UserTimer.dart';
 class DMChatController extends ChatController {
   final discord.DMChannel _channel;
   final HtmlElement _titleContainer;
-  final HtmlElement _view;
-  final NodeValidator _nodeValidator;
 
-  final DivElement _messages;
-  final DivElement _editBar;
   DivElement _profileBar;
-  discord.Message _editMsg;
   discord.User _profile;
   bool _editMod = false;
   final TextAreaElement _textArea;
-  final TemplateElement _messageTemplate;
   final TemplateElement _userTemplate;
   final List<UserTimer> _typingUsers = new List<UserTimer>();
   final DivElement _usersList;
@@ -93,25 +87,26 @@ class DMChatController extends ChatController {
       DiscordShellBot _ds,
       this._channel,
       this._titleContainer,
-      this._view,
-      this._nodeValidator)
-      : _messages = _view.querySelector(".chat-messages"),
-        _profileBar = _view.querySelector(".profile-bar"),
-        _usersList = _view.querySelector(".users-list"),
-        _textArea = _view.querySelector("textarea"),
-        _typing = _view.querySelector(".typing"),
-        _userTemplate = _view.querySelector("template[name=user-template]"),
-        _messageTemplate = _view.querySelector("template[name=message-template]"),
-        _editBar = _view.querySelector(".editbarbox"),
-        super(_ds)
+      DivElement view,
+      NodeValidator nodeValidator)
+      : _profileBar = view.querySelector(".profile-bar"),
+        _usersList = view.querySelector(".users-list"),
+        _textArea = view.querySelector("textarea"),
+        _typing = view.querySelector(".typing"),
+        _userTemplate = view.querySelector("template[name=user-template]"),
+        super(_ds,
+              nodeValidator,
+              view,
+              view.querySelector(".chat-messages"),
+              view.querySelector(".profile-bar"),
+              view.querySelector(".editbarbox"),
+              view.querySelector("template[name=message-template]")
+        )
   {
-    assert(_messages != null);
     assert(_usersList != null);
     assert(_textArea != null);
     assert(_typing != null);
     assert(_userTemplate != null);
-    assert(_messageTemplate != null);
-    assert(_editBar != null);
     assert(_profileBar != null);
 
     this._titleContainer.text = _channel.recipient.username;
@@ -151,17 +146,17 @@ class DMChatController extends ChatController {
           break;
       }
     }
-    _editBar.style.display = 'none';
+    this.editBar().style.display = 'none';
     _profileBar.style.display = 'none';
-    _editBar.children[0].addEventListener('click', (e){
-      _editMsg.delete();
-      _editBar.style.display='none';
+    this.editBar().children[0].addEventListener('click', (e){
+      this.editMsg().delete();
+      this.editBar().style.display='none';
     });
-    _editBar.children[1].addEventListener('click', (e){
-      _textArea.value = _editMsg.content;
+    this.editBar().children[1].addEventListener('click', (e){
+      _textArea.value = this.editMsg().content;
       _textArea.focus();
       _editMod = true;
-      _editBar.style.display='none';
+      this.editBar().style.display='none';
     });
     const oneSec = const Duration(seconds: 1);
     new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
@@ -186,17 +181,17 @@ class DMChatController extends ChatController {
 
     this.ds.bot.onMessageDelete.listen((message) {
       if (message.message.channel.id == _channel.id) {
-        DivElement msgElement = _messages.querySelector("[title='" + message.message.id + "']");
+        DivElement msgElement = this.messages().querySelector("[title='" + message.message.id + "']");
         msgElement.parent.remove();
       }
     });
 
     this.ds.bot.onMessageUpdate.listen((message) {
       if (message.newMessage.channel.id == _channel.id) {
-        DivElement msgElement = _messages.querySelector("[title='" + message.oldMessage.id + "']");
+        DivElement msgElement = this.messages().querySelector("[title='" + message.oldMessage.id + "']");
         msgElement.innerHtml = markdownToHtml(message.newMessage.content);
         msgElement.title = message.newMessage.id;
-        if (!this._nodeValidator.allowsElement(msgElement)) {
+        if (!this.nodeValidator().allowsElement(msgElement)) {
           msgElement.parent.style.backgroundColor = "red";
           msgElement.text =
           "<<Remote code execution protection has prevented this message from being displayed>>";
@@ -210,7 +205,7 @@ class DMChatController extends ChatController {
     this.ds.bot.onMessage.listen((discord.MessageEvent e) {
       assert(e.message.channel != null);
       if (e.message.channel.id == this._channel.id) {
-        if (this._view.parent.style.display == "none")
+        if (this.view().parent.style.display == "none")
           this._titleContainer.style.color = "Red";
         this.addMessage(e.message, false);
         _typingUsers.forEach((f) {
@@ -240,10 +235,10 @@ class DMChatController extends ChatController {
     _profileBar.querySelector(".profile-info").style.borderTop = "2px solid grey";
     _profileBar.querySelector(".profile-right").innerHtml = ucreate;
     _profileBar.querySelectorAll(".profile-right")[1].innerHtml = _profile.id;
-    ButtonElement historyButton = _view.querySelector(".more-messages");
+    ButtonElement historyButton = this.view().querySelector(".more-messages");
     historyButton.addEventListener('click', (e) {
       _channel
-          .getMessages(before: _messages.querySelector(".content").title)
+          .getMessages(before: this.messages().querySelector(".content").title)
           .then((message) {
         List<discord.Message> list = new List<discord.Message>();
 
@@ -264,17 +259,17 @@ class DMChatController extends ChatController {
       });
     });
 
-    ButtonElement chatButton = _view.querySelector("button.chat");
+    ButtonElement chatButton = this.view().querySelector("button.chat");
     chatButton.addEventListener('click', (e) {
       String text = this._textArea.value;
       if (text.length > 0) {
         if (_editMod==true){
-          if (text!=_editMsg.content)
-            _editMsg.edit(content: text);
+          if (text!=this.editMsg().content)
+            this.editMsg().edit(content: text);
           _editMod = false;
         }else{
           _channel.send(content: text);
-          _messages.scrollTo(0,_messages.scrollHeight);
+          this.messages().scrollTo(0,this.messages().scrollHeight);
         }
       }
       this._textArea.value = '';
@@ -307,7 +302,7 @@ class DMChatController extends ChatController {
     });
 
     _channel.getMessages().then((messages) {
-      for(DivElement msg in this._messages.querySelectorAll(".message"))
+      for(DivElement msg in this.messages().querySelectorAll(".message"))
       {
         msg.remove();
       }
@@ -349,54 +344,7 @@ class DMChatController extends ChatController {
     );
   }
 
-  addMessage(discord.Message msg, bool top){
-    DocumentFragment msgFragment = document.importNode(_messageTemplate.content, true);
-    ImageElement avatar = msgFragment.querySelector(".user-avatar");
-    HtmlElement username = msgFragment.querySelector(".user-name");
-    DivElement content = msgFragment.querySelector(".content");
-    if (msg.author.id == this.ds.bot.user.id){
-      username.className += " Hhover";
-      username.addEventListener('click', (e) {
-        _editBar.style.top = username.parent.getBoundingClientRect().topRight.y.toString()+"px";
-        _editBar.style.right = (username.parent.getBoundingClientRect().topRight.x+70).toString()+"px";
-        _editBar.style.display = "";
-        _editMsg = msg;
-        _editBar.focus();
-      });
-    }
-    if (msg.author.avatar == null) {
-      avatar.src = "images/iconless.png";
-    } else {
-      // TODO: Request webp if user agent supports it.
-      avatar.src = msg.author.avatarURL(format: 'png', size: 128);
-    }
-    username.title = msg.author.id;
-    username.text = msg.author.username;
-    msg.content = msg.content.replaceAll("<@"+this.ds.bot.user.id+">", "@"+this.ds.bot.user.username);
-    content.innerHtml = markdownToHtml(msg.content);
-    content.title = msg.id;
-    if (!this._nodeValidator.allowsElement(content)) {
-      msgFragment.querySelector(".message").style.backgroundColor = "red";
-      content.text =
-      "<<Remote code execution protection has prevented this message from being displayed>>";
-    }
-    if (top) {
-      _messages.insertBefore(msgFragment, _messages.querySelector(".message"));
-    } else {
-      var check = _messages.querySelectorAll(".message");
-      if (check.length != 0) {
-        ImageElement lastMessage = check[check.length - 1].querySelector(".user-avatar");
-        if (lastMessage.src == avatar.src) {
-          avatar.style.opacity = "0";
-        }
-      }
-      _messages.append(msgFragment);
-      if (_messages.scrollTop+_messages.clientHeight>_messages.scrollHeight-50)
-        _messages.scrollTo(0,_messages.scrollHeight);
-    }
-  }
-
   Future<Null> destroy() async {
-    return null;
+    return await super.destroy();
   }
 }

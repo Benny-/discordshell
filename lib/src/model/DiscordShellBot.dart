@@ -29,19 +29,18 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
+import 'package:nyxx/nyxx.dart' as discord;
 
 class DiscordShellBot {
   final String _token;
-  final discord.Client bot;
+  final discord.Nyxx bot;
   String status = "Not ready...";
 
-  DiscordShellBot.fromBot (this._token, this.bot)
+  DiscordShellBot.fromBot(this._token, this.bot)
   {
     status = 'Loading...';
 
-    bot.onReady.listen((discord.ReadyEvent e) async {
+    bot.onReady.listen((discord.ReadyEvent e) {
       status = 'Ready';
     });
 
@@ -53,7 +52,7 @@ class DiscordShellBot {
 
   factory DiscordShellBot(String token)
   {
-    discord.configureDiscordForBrowser();
-    return new DiscordShellBot.fromBot(token, new discord.Client(token, new discord.ClientOptions(autoShard: false, forceFetchMembers: false)));
+    final discord.ClientOptions options = new discord.ClientOptions(autoShard: false, forceFetchMembers: false);
+    return new DiscordShellBot.fromBot(token, new discord.Nyxx(token, options: options, ignoreExceptions: false));
   }
 }

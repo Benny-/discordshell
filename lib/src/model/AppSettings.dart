@@ -29,11 +29,13 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'package:dartson/dartson.dart';
-import 'package:discordshell/src/model/AppSettingsChangedEvent.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:discordshell/src/events/AppSettingsChangedEvent.dart';
 import 'dart:async';
 
-@Entity()
+part 'AppSettings.g.dart';
+
+@JsonSerializable(nullable: false)
 class AppSettings {
 
   bool enableNotifications = true;
@@ -56,6 +58,10 @@ class AppSettings {
 
     return new AppSettings._internal(streamController, stream);
   }
+
+  factory AppSettings.fromJson(Map<String, dynamic> json) => _$AppSettingsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AppSettingsToJson(this);
 
   notifyChangeListeners() {
     return this._onAppSettingsChangedEventStreamController.add(new AppSettingsChangedEvent(this));

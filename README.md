@@ -4,31 +4,31 @@ A pure web application to control discord bots. See what they see and chat as a 
 
 #### Requirements
 
-- [dart-sdk 2.0.0-dev.20.0](https://webdev-dartlang-org-dev.firebaseapp.com/tools/sdk/archive).
-- A [discord bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token).
+- [dart-sdk 2](https://webdev.dartlang.org/tools/sdk).
+- [discord bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token).
 
 #### Dependencies
 
 Execute the following commands in the project directory.
 
 ```sh
-git clone "https://github.com/Benny-/nyx.git"
 pub get
+pub run build_runner build # This will create some generated dart code
 ```
 
 #### Run development server
 
 ```sh
-pub serve
+webdev serve
 ```
 
 #### Build production
 
 ```sh
-pub build
+webdev build
 ```
 
-Place build `./dist` files on a webserver and navigate to the page. No other server side scipts like php required.
+Place build `./build` files on a webserver and navigate to the page. No other server side scipts like php required.
 
 #### License
 

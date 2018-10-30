@@ -31,18 +31,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
+import 'package:nyxx/nyxx.dart' as discord;
 import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
-import '../model/OpenDMChannelRequestEvent.dart';
+import 'package:discordshell/src/events/OpenDMChannelRequestEvent.dart';
 import './ChatController.dart';
 import './UserTimer.dart';
 
 class TextChannelChatController extends ChatController {
   final discord.TextChannel _channel;
   final HtmlElement _titleContainer;
-  final NodeValidator _nodeValidator;
   final StreamController<OpenDMChannelRequestEvent> _onOpenDMChannelRequestEventStreamController;
   final Stream<OpenDMChannelRequestEvent> onOpenDMChannelRequestEvent;
 
@@ -84,7 +82,7 @@ class TextChannelChatController extends ChatController {
     assert(_userTemplate != null);
     assert(_profileBar != null);
           
-    ImageElement titleIcon = new ImageElement( src: this.ds.bot.user.avatarURL(format: 'png'), width: 128, height: 128);
+    ImageElement titleIcon = new ImageElement( src: this.ds.bot.self.avatarURL(format: 'png'), width: 128, height: 128);
     titleIcon.className = "user-avatar-tab-header";
     SpanElement titleText = new SpanElement();
     titleText.text = _channel.name;
@@ -144,7 +142,7 @@ class TextChannelChatController extends ChatController {
     new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
     this.ds.bot.onTyping.listen((typer) {
       if (_channel == null ||
-          typer.user.id == this.ds.bot.user.id ||
+          typer.user.id == this.ds.bot.self.id ||
           typer.channel.id != _channel.id) {
         return;
       }
@@ -163,16 +161,16 @@ class TextChannelChatController extends ChatController {
 
     this.ds.bot.onMessageDelete.listen((message) {
       if (message.message.channel.id == _channel.id) {
-        DivElement msgelement = messages().querySelector("[title='" + message.message.id + "']");
+        DivElement msgelement = messages().querySelector("[title='" + message.message.id.id + "']");
         msgelement.parent.remove();
       }
     });
 
     this.ds.bot.onMessageUpdate.listen((message) {
       if (message.newMessage.channel.id == _channel.id) {
-        DivElement msgElement = messages().querySelector("[title='" + message.oldMessage.id + "']");
+        DivElement msgElement = messages().querySelector("[title='" + message.oldMessage.id.id + "']");
         msgElement.innerHtml = markdownToHtml(message.newMessage.content);
-        msgElement.title = message.newMessage.id;
+        msgElement.title = message.newMessage.id.id;
         if (!this.nodeValidator().allowsElement(msgElement)) {
           msgElement.parent.style.backgroundColor = "red";
           msgElement.text =
@@ -182,11 +180,11 @@ class TextChannelChatController extends ChatController {
     });
     _profileBar.querySelector(".profile-name-tag").children[0].addEventListener('click', (e){
       if(!_profile.bot) {
-      _profileBar.style.display = "none";
-      _profile.getChannel().then((k){
-        OpenDMChannelRequestEvent e = new OpenDMChannelRequestEvent(this.ds, k);
-        _onOpenDMChannelRequestEventStreamController.add(e);
-      });
+        _profileBar.style.display = "none";
+        _profile.dmChannel.then((k){
+          OpenDMChannelRequestEvent e = new OpenDMChannelRequestEvent(this.ds, k);
+          _onOpenDMChannelRequestEventStreamController.add(e);
+        });
       }
     });
     this._titleContainer.addEventListener('click', (e){
@@ -197,7 +195,7 @@ class TextChannelChatController extends ChatController {
       assert(e.message.channel != null);
       if (e.message.channel == this._channel) {
         if (this.view().parent.style.display == "none")
-          this._titleContainer.style.color = e.message.content.contains("<@"+_ds.bot.user.id+">") ? "Red" : "Orange";
+          this._titleContainer.style.color = e.message.content.contains("<@"+_ds.bot.self.id.id+">") ? "Red" : "Orange";
         this.addMessage(e.message, false);
         _typingUsers.forEach((f) {
           if (f.id == e.message.author.id) {
@@ -213,8 +211,9 @@ class TextChannelChatController extends ChatController {
 
     ButtonElement historyButton = this.view().querySelector(".more-messages");
     historyButton.addEventListener('click', (e) {
+      final discord.Snowflake snowflake = new discord.Snowflake(messages().querySelector(".content").title);
       _channel
-          .getMessages(before: messages().querySelector(".content").title)
+          .getMessages(before: snowflake)
           .then((message) {
         List<discord.Message> list = new List<discord.Message>();
 
@@ -223,7 +222,7 @@ class TextChannelChatController extends ChatController {
         }
 
         list.sort((a, b) {
-          return a.timestamp.compareTo(b.timestamp);
+          return a.id.compareTo(b.id);
         });
 
         list.reversed.forEach((msg) {
@@ -267,19 +266,22 @@ class TextChannelChatController extends ChatController {
     this.ds.bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e) {
       for (discord.Guild guild in this.ds.bot.guilds.values) {
         guild.members.values.forEach((member) {
-          if (member.id == e.newMember.id) {
-            member.status = e.newMember.status;
+          if (member.id == e.member.id) {
+            member.status = e.member.status;
           }
         });
       }
       if (_channel == null) {
         return;
       }
-      if (e.newMember.guild == _channel.guild) {
-        HtmlElement avatar =
-            _usersList.querySelector("[title='" + e.newMember.id + "']");
+      if (e.member.guild == _channel.guild) {
+        HtmlElement avatar = _usersList.querySelector("[title='" + e.member.id.id + "']");
         ImageElement picture = avatar.parent.querySelector("img");
-        picture.className = "avatar discord-status-" + e.newMember.status;
+        if (e.member.status == discord.MemberStatus.from(null)) {
+          avatar.className = "avatar discord-status-offline";
+        } else {
+          avatar.className = "avatar discord-status-" + e.member.status.toString();
+        }
       }
     });
 
@@ -302,7 +304,7 @@ class TextChannelChatController extends ChatController {
       }
 
       list.sort((a, b) {
-        return a.timestamp.compareTo(b.timestamp);
+        return a.id.compareTo(b.id);
       });
 
       list.forEach((msg) {
@@ -346,13 +348,13 @@ class TextChannelChatController extends ChatController {
       // TODO: Request webp if user agent supports it.
       avatar.src = user.avatarURL(format: 'png', size: 128);
     }
-    avatar.title = user.id;
+    avatar.title = user.id.id;
     username.text = user.nickname==null ? user.username : user.nickname;
     username.title = user.username;
-    if (user.status == null) {
+    if (user.status == discord.MemberStatus.from(null)) {
       avatar.className = "avatar discord-status-offline";
     } else {
-      avatar.className = "avatar discord-status-" + user.status;
+      avatar.className = "avatar discord-status-" + user.status.toString();
     }
 
     _usersList.append(userFragment);
@@ -376,17 +378,18 @@ class TextChannelChatController extends ChatController {
       _profileBar.querySelectorAll(".profile-right")[1].innerHtml = ucreate.substring(0,ucreate.indexOf("."));
       String ujoined = user.joinedAt.toLocal().toString();
       _profileBar.querySelectorAll(".profile-right")[2].innerHtml = ujoined.substring(0,ujoined.indexOf("."));
-      _profileBar.querySelectorAll(".profile-right")[3].innerHtml = user.game==null ? "" : user.game.name;
-      _profileBar.querySelectorAll(".profile-right")[4].innerHtml = user.id;
+      //_profileBar.querySelectorAll(".profile-right")[3].innerHtml = user.game==null ? "" : user.game.name;
+      // TODO: Set game information
+      _profileBar.querySelectorAll(".profile-right")[4].innerHtml = user.id.id;
       while (rolesList.hasChildNodes()) {
         rolesList.firstChild.remove();
       }
-      user.roles.forEach((f){
+      user.roles.forEach((role){
         ParagraphElement roleFragment = new ParagraphElement();
         roleFragment.className = "profile-role";
-        roleFragment.innerHtml = user.guild.roles[f].name;
-        roleFragment.style.color = user.guild.roles[f].color==null ? "#99aab5" : "#"+user.guild.roles[f].color.toRadixString(16);
-        roleFragment.style.borderColor = user.guild.roles[f].color==null ? "#99aab5" : "#"+user.guild.roles[f].color.toRadixString(16);
+        roleFragment.innerHtml = role.name;
+        roleFragment.style.color = role.color==null ? "#99aab5" : role.color.toString();
+        roleFragment.style.borderColor = role.color==null ? "#99aab5" : role.color.toString();
         rolesList.append(roleFragment);
       });
       _profileBar.style.top = (userItem.getBoundingClientRect().topLeft.y-_profileBar.clientHeight/10+_profileBar.clientHeight)>document.documentElement.clientHeight ? (document.documentElement.clientHeight-_profileBar.clientHeight-10).toString()+"px" : (userItem.getBoundingClientRect().topLeft.y-_profileBar.clientHeight/10).toString()+"px";

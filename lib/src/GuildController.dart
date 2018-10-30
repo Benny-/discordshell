@@ -31,11 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:async';
 import 'dart:html';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
+import 'package:nyxx/nyxx.dart' as discord;
 import 'package:discordshell/src/model/DiscordShellBot.dart';
 import './ChannelController.dart';
-import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
+import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
 
 class GuildController {
   final DiscordShellBot _ds;
@@ -63,13 +62,14 @@ class GuildController {
     this._updateView();
 
     _guild.channels.forEach((key, channel) {
-      this._createGuildChannel(channel);
+      if(channel is discord.TextChannel)
+        this._createGuildChannel(channel);
     });
 
     this._ds.bot.onChannelCreate.listen((e) {
       discord.Channel channel = e.channel;
 
-      if(channel is discord.GuildChannel) {
+      if(channel is discord.TextChannel) {
         assert(channel.guild.id != _guild.id || (channel.guild.id == _guild.id && channel.guild == _guild));
 
         if(channel.guild == _guild) {
@@ -81,7 +81,6 @@ class GuildController {
     this._ds.bot.onGuildUpdate.listen((e) {
       assert(e.oldGuild.id != _guild.id || (e.oldGuild.id == _guild.id && e.oldGuild == _guild));
       if(e.oldGuild == _guild) {
-        assert(e.newGuild.channels.length == _guild.channels.length);
         this._guild = e.newGuild;
       }
     });
@@ -98,8 +97,12 @@ class GuildController {
     return new GuildController._internal(ds, guild, view, streamController, stream);
   }
 
+  discord.Guild getGuild() {
+    return this._guild;
+  }
+
   _updateView() {
-    _image.title = _guild.id;
+    _image.title = _guild.id.id;
     if(this._guild.icon == null)
     {
       _image.src = "images/iconless.png";
@@ -111,18 +114,16 @@ class GuildController {
     }
 
     _title.text = _guild.name;
-    _title.title = _guild.id;
+    _title.title = _guild.id.id;
   }
 
-  _createGuildChannel(discord.GuildChannel guildChannel) {
-    if(guildChannel.type == 'text') {
-      ChannelController controller = new ChannelController(_ds, guildChannel, this._guildChannels, _channelTemplate);
-      controller.onTextChannelRequestEvent.listen((e) {
-        assert(e.channel != null);
-        this._onTextChannelRequestEventStreamController.add(e);
-      });
-      this._subControllers.add(controller);
-    }
+  _createGuildChannel(discord.TextChannel channel) {
+    ChannelController controller = new ChannelController(_ds, channel, this._guildChannels, _channelTemplate);
+    controller.onTextChannelRequestEvent.listen((e) {
+      assert(e.channel != null);
+      this._onTextChannelRequestEventStreamController.add(e);
+    });
+    this._subControllers.add(controller);
   }
 
   Future<Null> destroy() async {

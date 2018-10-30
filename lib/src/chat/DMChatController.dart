@@ -62,8 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
+import 'package:nyxx/nyxx.dart' as discord;
 import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
 import './ChatController.dart';
@@ -162,7 +161,7 @@ class DMChatController extends ChatController {
     new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
     this.ds.bot.onTyping.listen((typer) {
       if (_channel == null ||
-          typer.user.id == this.ds.bot.user.id ||
+          typer.user.id == this.ds.bot.self.id ||
           typer.channel.id != _channel.id) {
         return;
       }
@@ -181,16 +180,16 @@ class DMChatController extends ChatController {
 
     this.ds.bot.onMessageDelete.listen((message) {
       if (message.message.channel.id == _channel.id) {
-        DivElement msgElement = this.messages().querySelector("[title='" + message.message.id + "']");
+        DivElement msgElement = this.messages().querySelector("[title='" + message.message.id.id + "']");
         msgElement.parent.remove();
       }
     });
 
     this.ds.bot.onMessageUpdate.listen((message) {
       if (message.newMessage.channel.id == _channel.id) {
-        DivElement msgElement = this.messages().querySelector("[title='" + message.oldMessage.id + "']");
+        DivElement msgElement = this.messages().querySelector("[title='" + message.oldMessage.id.id + "']");
         msgElement.innerHtml = markdownToHtml(message.newMessage.content);
-        msgElement.title = message.newMessage.id;
+        msgElement.title = message.newMessage.id.id;
         if (!this.nodeValidator().allowsElement(msgElement)) {
           msgElement.parent.style.backgroundColor = "red";
           msgElement.text =
@@ -234,11 +233,12 @@ class DMChatController extends ChatController {
     _profileBar.querySelectorAll(".profile-info")[1].remove();
     _profileBar.querySelector(".profile-info").style.borderTop = "2px solid grey";
     _profileBar.querySelector(".profile-right").innerHtml = ucreate;
-    _profileBar.querySelectorAll(".profile-right")[1].innerHtml = _profile.id;
+    _profileBar.querySelectorAll(".profile-right")[1].innerHtml = _profile.id.id;
     ButtonElement historyButton = this.view().querySelector(".more-messages");
     historyButton.addEventListener('click', (e) {
+      final discord.Snowflake snowflake = new discord.Snowflake(this.messages().querySelector(".content").title);
       _channel
-          .getMessages(before: this.messages().querySelector(".content").title)
+          .getMessages(before: snowflake)
           .then((message) {
         List<discord.Message> list = new List<discord.Message>();
 
@@ -247,7 +247,7 @@ class DMChatController extends ChatController {
         }
 
         list.sort((a, b) {
-          return a.timestamp.compareTo(b.timestamp);
+          return a.id.compareTo(b.id);
         });
 
         list.reversed.forEach((msg) {
@@ -291,8 +291,8 @@ class DMChatController extends ChatController {
     this.ds.bot.onPresenceUpdate.listen((discord.PresenceUpdateEvent e) {
       for (discord.Guild guild in this.ds.bot.guilds.values) {
         guild.members.values.forEach((member) {
-          if (member.id == e.newMember.id) {
-            member.status = e.newMember.status;
+          if (member.id == e.member.id) {
+            member.status = e.member.status;
           }
         });
       }
@@ -315,7 +315,7 @@ class DMChatController extends ChatController {
       }
 
       list.sort((a, b) {
-        return a.timestamp.compareTo(b.timestamp);
+        return a.id.compareTo(b.id);
       });
 
       list.forEach((msg) {

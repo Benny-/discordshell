@@ -1,25 +1,24 @@
 name: discordshell
 description: A shell for discord bots
-version: 0.0.4
+version: 0.1.0
 homepage: https://github.com/Benny-/discordshell
 author: Benny Jacobs <benny@gmx.it>
 
 environment:
-  sdk: '>=2.0.0-dev.20.0'
+  sdk: '>=2.0.0 <3.0.0'
 
 dependencies:
-  markdown: "^1.1.0"
-  discord:
-    path: 'nyx'
-  dartson: "^0.2.7"
+  json_annotation: ^2.0.0
+  markdown: ^2.0.2
+  nyxx:
+    git:
+      url: git://github.com/benny-/nyxx.git
+      ref: development
 
 dev_dependencies:
-  browser: ^0.10.0
-  dart_to_js_script_rewriter: ^1.0.1
-
-transformers:
-- dartson
-- dart_to_js_script_rewriter
+  build_runner: ^1.0.0
+  build_web_compilers: ^0.4.4+2
+  json_serializable: ^2.0.0
 
 # Uncomment the following in sdk 1.24+ to make pub serve
 # use dartdevc (webdev.dartlang.org/tools/dartdevc).

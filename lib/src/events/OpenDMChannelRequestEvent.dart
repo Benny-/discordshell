@@ -29,13 +29,12 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
-import './DiscordShellBot.dart';
+import 'package:nyxx/nyxx.dart' as discord;
+import '../model/DiscordShellBot.dart';
 
-class OpenTextChannelRequestEvent {
+class OpenDMChannelRequestEvent {
   DiscordShellBot ds;
-  discord.TextChannel channel;
+  discord.DMChannel channel;
 
-  OpenTextChannelRequestEvent(this.ds, this.channel);
+  OpenDMChannelRequestEvent(this.ds, this.channel);
 }

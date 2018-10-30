@@ -31,14 +31,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:async';
 import 'dart:html';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
+import 'package:nyxx/nyxx.dart' as discord;
 import './model/DiscordShellBot.dart';
-import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
+import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
 
 class ChannelController {
   final DiscordShellBot _ds;
-  discord.GuildChannel _channel;
+  discord.TextChannel _channel;
   final DivElement _view;
 
   final StreamController<OpenTextChannelRequestEvent> _onTextChannelRequestEventStreamController;
@@ -70,7 +69,7 @@ class ChannelController {
     this.updateView();
   }
 
-  factory ChannelController(DiscordShellBot ds, discord.GuildChannel guildChannel, HtmlElement parent, TemplateElement _guildTemplate) {
+  factory ChannelController(DiscordShellBot ds, discord.TextChannel channel, HtmlElement parent, TemplateElement _guildTemplate) {
     DocumentFragment fragment = document.importNode(_guildTemplate.content, true);
     DivElement view = fragment.querySelector('div.channel');
     parent.append(view);
@@ -78,12 +77,12 @@ class ChannelController {
     StreamController<OpenTextChannelRequestEvent> streamController = new StreamController<OpenTextChannelRequestEvent>.broadcast();
     Stream<OpenTextChannelRequestEvent> stream = streamController.stream;
 
-    return new ChannelController._internal(ds, guildChannel, view, streamController, stream);
+    return new ChannelController._internal(ds, channel, view, streamController, stream);
   }
 
   updateView() {
     this._view.text = '#' + _channel.name;
-    this._view.title = _channel.id;
+    this._view.title = _channel.id.id;
   }
 
   Future<Null> destroy() async {

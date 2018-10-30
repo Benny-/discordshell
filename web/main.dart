@@ -31,9 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
+import 'dart:convert';
 import 'dart:collection';
-import 'package:discord/discord.dart';
-import 'package:dartson/dartson.dart';
+import 'package:nyxx/Browser.dart' show configureNyxxForBrowser;
+import 'package:nyxx/nyxx.dart' show Channel, DMChannel, Snowflake, TextChannel;
 import 'package:discordshell/src/notifications/NotificationArea.dart';
 import 'package:discordshell/src/notifications/NotificationPopup.dart';
 import 'package:discordshell/src/tabs/Tabs.dart';
@@ -41,14 +42,26 @@ import 'package:discordshell/src/tabs/Tab.dart';
 import 'package:discordshell/src/model/AppSettings.dart';
 import 'package:discordshell/src/model/DiscordShellBotCollection.dart';
 import 'package:discordshell/src/model/DiscordShellBot.dart';
-import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
-import 'package:discordshell/src/model/OpenDMChannelRequestEvent.dart';
+import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
+import 'package:discordshell/src/events/OpenDMChannelRequestEvent.dart';
 import 'package:discordshell/src/BotsController.dart';
 import 'package:discordshell/src/chat/TextChannelChatController.dart';
 import 'package:discordshell/src/chat/DMChatController.dart';
 import 'package:discordshell/src/SettingsController.dart';
 
+AppSettings loadSettings() {
+  final String settingsStr = window.localStorage['settings'];
+  if(settingsStr != null) {
+    assert(settingsStr.length >= 0);
+    final json = jsonDecode(settingsStr);
+    return AppSettings.fromJson(json);
+  } else {
+    return new AppSettings();
+  }
+}
+
 void main() {
+  configureNyxxForBrowser();
   final Element tabsHTML = querySelector(".tabs");
   final TemplateElement botsControllerTemplate = querySelector('template#discord-shell-bots-controller-template');
   final TemplateElement chatControllerTemplate = querySelector('template#chat-pane-template');
@@ -58,16 +71,8 @@ void main() {
   final NotificationArea notificationArea = new NotificationArea(querySelector('div#notification-area'));
 
   final DiscordShellBotCollection bots = new DiscordShellBotCollection();
-  final AppSettings appSettings = new AppSettings();
-  final Map<DiscordShellBot, Map<String, Tab>> openedChatTabs = new HashMap<DiscordShellBot, Map<String, Tab>>();
-  final Dartson dartSon = new Dartson.JSON();
-
-  final String settingsStr = window.localStorage['settings'];
-  if(settingsStr != null) {
-    assert(settingsStr.length >= 0);
-    final Object obj = dartSon.decode(window.localStorage['settings'], appSettings);
-    assert(obj == appSettings);
-  }
+  final AppSettings appSettings = loadSettings();
+  final Map<DiscordShellBot, Map<Snowflake, Tab>> openedChatTabs = new HashMap<DiscordShellBot, Map<Snowflake, Tab>>();
 
   final NodeValidatorBuilder nodeValidatorBuilder = new NodeValidatorBuilder();
   nodeValidatorBuilder.allowTextElements();
@@ -134,9 +139,9 @@ void main() {
     newDiscordShellEvent.discordShell.bot.onMessage.listen((newMessageEvent) {
 
       bool messageInOpenTab = (openedChatTabs[newDiscordShellEvent.discordShell] != null) && (openedChatTabs[newDiscordShellEvent.discordShell][newMessageEvent.message.channel.id] != null);
-      bool messageContainsMention = newMessageEvent.message.content.contains("<@"+newDiscordShellEvent.discordShell.bot.user.id+">");
+      bool messageContainsMention = newMessageEvent.message.content.contains("<@"+newDiscordShellEvent.discordShell.bot.self.id.id+">");
       bool isDM = newMessageEvent.message.channel is DMChannel;
-      bool isOwnMessage = newMessageEvent.message.author.id == newDiscordShellEvent.discordShell.bot.user.id;
+      bool isOwnMessage = newMessageEvent.message.author.id == newDiscordShellEvent.discordShell.bot.self.id;
 
       if(isDM) {
         openDMChannel(newMessageEvent.message.channel,
@@ -155,13 +160,13 @@ void main() {
 
           String body = newMessageEvent.message.content;
           // TODO: Properly replace all mentions in body and take code block into account.
-          body = body.replaceAll("<@"+newDiscordShellEvent.discordShell.bot.user.id+">", "@"+newDiscordShellEvent.discordShell.bot.user.username);
+          body = body.replaceAll("<@"+newDiscordShellEvent.discordShell.bot.self.id.id+">", "@"+newDiscordShellEvent.discordShell.bot.self.username);
           final Channel channel = newMessageEvent.message.channel;
           String title = "DiscordShell";
           String icon = "images/robocord.png";
 
-          if(newDiscordShellEvent.discordShell.bot.user.avatar != null) {
-            icon = newDiscordShellEvent.discordShell.bot.user.avatarURL(format: 'png', size: 128);
+          if(newDiscordShellEvent.discordShell.bot.self.avatar != null) {
+            icon = newDiscordShellEvent.discordShell.bot.self.avatarURL(format: 'png', size: 128);
           }
 
           if(channel is DMChannel) {
@@ -202,14 +207,13 @@ void main() {
 
   appSettings.onAppSettingsChangedEvent.listen((e) {
     requestNotificationPermissionIfNeeded(e.appSettings);
-    window.localStorage['settings'] = dartSon.encode(e.appSettings);
+    window.localStorage['settings'] = e.appSettings.toJson().toString();
   });
 }
 
 Tab openDMChannel(DMChannel channel,
     DiscordShellBot ds,
-    Map<DiscordShellBot,
-    Map<String, Tab>> openedChatTabs,
+    Map<DiscordShellBot, Map<Snowflake, Tab>> openedChatTabs,
     Tabs tabs,
     TemplateElement chatControllerTemplate,
     NodeValidatorBuilder nodeValidatorBuilder) {
@@ -228,7 +232,7 @@ Tab openDMChannel(DMChannel channel,
         nodeValidatorBuilder
     );
     if (openedChatTabs[ds] == null) {
-      openedChatTabs[ds] = new HashMap<String, Tab>();
+      openedChatTabs[ds] = new HashMap<Snowflake, Tab>();
     }
     openedChatTabs[ds][channel.id] = dmTab;
 
@@ -249,8 +253,7 @@ Tab openDMChannel(DMChannel channel,
 Tab openGuildTextChannel(
     TextChannel channel,
     DiscordShellBot ds,
-    Map<DiscordShellBot,
-    Map<String, Tab>> openedChatTabs,
+    Map<DiscordShellBot, Map<Snowflake, Tab>> openedChatTabs,
     Tabs tabs,
     TemplateElement chatControllerTemplate,
     NodeValidatorBuilder nodeValidatorBuilder) {
@@ -268,7 +271,7 @@ Tab openGuildTextChannel(
         nodeValidatorBuilder
     );
     if(openedChatTabs[ds] == null) {
-      openedChatTabs[ds] = new HashMap<String, Tab>();
+      openedChatTabs[ds] = new HashMap<Snowflake, Tab>();
     }
     openedChatTabs[ds][channel.id] = guildTab;
 
@@ -300,8 +303,7 @@ Tab openGuildTextChannel(
 Tab openChannel(
     Channel channel,
     DiscordShellBot ds,
-    Map<DiscordShellBot,
-    Map<String, Tab>> openedChatTabs,
+    Map<DiscordShellBot, Map<Snowflake, Tab>> openedChatTabs,
     Tabs tabs,
     TemplateElement chatControllerTemplate,
     NodeValidatorBuilder nodeValidatorBuilder) {

@@ -61,13 +61,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import 'package:nyxx/nyxx.dart' as discord;
+
 /**
  * This class is used to display the message about who is typing at the moment.
  */
 class UserTimer {
   final String name;
   num count;
-  final String id;
+  final discord.Snowflake id;
 
   UserTimer(this.name, this.count, this.id) {
   }

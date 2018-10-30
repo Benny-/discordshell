@@ -29,19 +29,12 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'dart:html';
-import 'dart:async';
-import './ChatController.dart';
+import 'package:nyxx/nyxx.dart' as discord;
 import '../model/DiscordShellBot.dart';
 
-class GroupDMChatController extends ChatController {
+class OpenTextChannelRequestEvent {
+  DiscordShellBot ds;
+  discord.TextChannel channel;
 
-  GroupDMChatController(DiscordShellBot _ds, NodeValidator nodeValidator) : super(_ds, nodeValidator, null, null, null, null, null) {
-    throw new UnimplementedError();
-  }
-
-  Future<Null> destroy() async {
-    return await super.destroy();
-  }
-
+  OpenTextChannelRequestEvent(this.ds, this.channel);
 }

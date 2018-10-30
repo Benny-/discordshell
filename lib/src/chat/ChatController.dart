@@ -31,8 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
+import 'package:nyxx/nyxx.dart' as discord;
 import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
 import './ChatController.dart';
@@ -60,11 +59,17 @@ abstract class ChatController {
     assert(_editBar != null);
 
     this._view.querySelector(".show-emojis").addEventListener("click", (e) async {
-      Map<String, discord.Emoji> map = await this.getEmojis();
-
-      map.forEach((s, emoji) {
-        print(emoji);
+      this._ds.bot.guilds.forEach((snowflake, guild) {
+        guild.emojis.forEach((snowflake, guildEmoji) {
+          print(guildEmoji);
+          // TOOD: Show emoji's
+        });
       });
+    });
+
+    this._ds.bot.onGuildEmojisUpdate.listen((discord.GuildEmojisUpdateEvent e) {
+      print(e);
+      // TOOD: Update emoji's
     });
   }
 
@@ -96,26 +101,12 @@ abstract class ChatController {
     return this._editMsg = message;
   }
 
-  Future<Map<String, discord.Emoji>> getEmojis() async {
-    Map<String, discord.Emoji> emojis;
-    await this._ds.bot.guilds.forEach((id, guild) async {
-      print("Fetching emojis for " + id);
-      Map<String, discord.Emoji> map = await guild.getEmojis();
-      print("Got emojis for " + id);
-      map.forEach((str, emoji) {
-        emojis[str] = emoji;
-      });
-      return null;
-    });
-    return emojis;
-  }
-
   addMessage(discord.Message msg, bool top){
     DocumentFragment msgFragment = document.importNode(_messageTemplate.content, true);
     ImageElement avatar = msgFragment.querySelector(".user-avatar");
     HtmlElement username = msgFragment.querySelector(".user-name");
     DivElement content = msgFragment.querySelector(".content");
-    if (msg.author.id == this.ds.bot.user.id){
+    if (msg.author.id == this.ds.bot.self.id){
       username.className += " Hhover";
       username.addEventListener('click', (e) {
         _editBar.style.top = username.parent.getBoundingClientRect().topRight.y.toString()+"px";
@@ -131,21 +122,25 @@ abstract class ChatController {
       // TODO: Request webp if user agent supports it.
       avatar.src = msg.author.avatarURL(format: 'png', size: 128);
     }
-    username.title = msg.author.id;
+    username.title = msg.author.id.id;
     username.text = msg.author.username;
-    msg.content = msg.content.replaceAll("<@"+this.ds.bot.user.id+">", "@"+this.ds.bot.user.username);
+    msg.content = msg.content.replaceAll("<@"+this.ds.bot.self.id.id+">", "@"+this.ds.bot.self.username);
     content.innerHtml = markdownToHtml(msg.content);
-    content.title = msg.id;
+    content.title = msg.id.id;
     if (!this._nodeValidator.allowsElement(content)) {
       msgFragment.querySelector(".message").style.backgroundColor = "red";
       content.text = "<<Remote code execution protection has prevented this message from being displayed>>";
     }
 
-    msg.attachments.forEach((s, attachment) {
-      /// XXX: A false assumption is here that all attachments are images.
-      ImageElement image = new ImageElement(src: attachment.url, width: attachment.width, height: attachment.height);
-      content.append(image);
-    });
+    if(msg.attachments != null) {
+      msg.attachments.forEach((s, attachment) {
+        /// XXX: A false assumption is here that all attachments are images.
+        ImageElement image = new ImageElement(src: attachment.url, width: attachment.width, height: attachment.height);
+        image.style.maxWidth = "100%";
+        image.style.height = "auto";
+        content.append(image);
+      });
+    }
 
     if (top) {
       _messages.insertBefore(msgFragment, _messages.querySelector(".message"));

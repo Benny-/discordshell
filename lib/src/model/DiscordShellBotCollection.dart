@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:async';
 import './DiscordShellBot.dart';
-import './NewDiscordShellEvent.dart';
+import 'package:discordshell/src/events/NewDiscordShellEvent.dart';
 
 class DiscordShellBotCollection {
   final List<DiscordShellBot> discordShells = new List<DiscordShellBot>();

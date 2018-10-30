@@ -31,11 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import 'package:discord/discord.dart' as discord;
-import 'package:discord/browser.dart' as discord;
+import 'package:nyxx/nyxx.dart' as discord;
 import './model/DiscordShellBot.dart';
 import './GuildController.dart';
-import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
+import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
 
 class BotController {
   final DiscordShellBot _ds;
@@ -114,15 +113,29 @@ class BotController {
   }
 
   _ready() {
-    this._botStatusHTML.text = "Ready";
-    this._userNameHTML.text = this._ds.bot.user.username;
-    this._userDiscriminatorHTML.text = "#" + this._ds.bot.user.discriminator;
-    this._userAvatarHTML.src = this._ds.bot.user.avatarURL(format: 'png');
-    this._userIdHTML.text = this._ds.bot.user.id;
-    this._userIdHTML.href = 'https://discordapp.com/oauth2/authorize?client_id=' + this._ds.bot.user.id + '&scope=bot';
+    this._botStatusHTML.text = this._ds.status;
+    this._userNameHTML.text = this._ds.bot.self.username;
+    this._userDiscriminatorHTML.text = "#" + this._ds.bot.self.discriminator;
+    this._userAvatarHTML.src = this._ds.bot.self.avatarURL(format: 'png');
+    this._userIdHTML.text = this._ds.bot.self.id.id;
+    this._userIdHTML.href = 'https://discordapp.com/oauth2/authorize?client_id=' + this._ds.bot.self.id.id + '&scope=bot';
 
     this._ds.bot.guilds.forEach((key, guild) {
       this._createGuildEvent(guild);
+    });
+
+    this._ds.bot.onGuildCreate.listen((discord.GuildCreateEvent e) {
+      bool alreadyFound = false;
+
+      for(GuildController gc in this._subControllers) {
+        discord.Guild guild = gc.getGuild();
+
+        if(guild.id == e.guild.id)
+          alreadyFound = true;
+      }
+
+      if(!alreadyFound)
+        this._createGuildEvent(e.guild);
     });
   }
 

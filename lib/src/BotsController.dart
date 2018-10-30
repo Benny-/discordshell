@@ -34,7 +34,7 @@ import 'dart:async';
 import './model/DiscordShellBot.dart';
 import 'package:discordshell/src/model/DiscordShellBotCollection.dart';
 import './BotController.dart';
-import 'package:discordshell/src/model/OpenTextChannelRequestEvent.dart';
+import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
 
 class BotsController {
   final DiscordShellBotCollection _dsCollection;
@@ -75,11 +75,11 @@ class BotsController {
     });
 
     tokenForm.addEventListener('submit', (e) {
+      e.preventDefault();
       DiscordShellBot discordShell = new DiscordShellBot(tokenInput.value);
       this._dsCollection.addDiscordShell(discordShell);
       tokenInput.value = "";
       tokenSubmit.disabled = tokenInput.value.length < 1;
-      e.preventDefault();
     });
   }
 

@@ -128,7 +128,7 @@ class BotController {
       bool alreadyFound = false;
 
       for(GuildController gc in this._subControllers) {
-        discord.Guild guild = gc.getGuild();
+        discord.Guild guild = gc.guild;
 
         if(guild.id == e.guild.id)
           alreadyFound = true;

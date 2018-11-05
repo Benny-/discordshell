@@ -97,9 +97,7 @@ class GuildController {
     return new GuildController._internal(ds, guild, view, streamController, stream);
   }
 
-  discord.Guild getGuild() {
-    return this._guild;
-  }
+  discord.Guild get guild => this._guild;
 
   _updateView() {
     _image.title = _guild.id.id;

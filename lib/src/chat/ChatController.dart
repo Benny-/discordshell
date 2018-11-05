@@ -34,8 +34,7 @@ import 'dart:async';
 import 'package:nyxx/nyxx.dart' as discord;
 import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
-import './ChatController.dart';
-import './UserTimer.dart';
+import './EmojiSelectorController.dart';
 
 abstract class ChatController {
   final DiscordShellBot _ds;
@@ -47,6 +46,8 @@ abstract class ChatController {
   discord.Message _editMsg;
   final DivElement _editBar;
   final TemplateElement _messageTemplate;
+  final TemplateElement _attachmentTemplate;
+  final EmojiSelectorController _emojiSelectorController;
 
   ChatController(this._ds,
                 this._nodeValidator,
@@ -54,52 +55,34 @@ abstract class ChatController {
                 this._messages,
                 this._profileBar,
                 this._editBar,
-                this._messageTemplate) {
-    assert(_messageTemplate != null);
+                this._messageTemplate,
+                this._attachmentTemplate,
+                this._emojiSelectorController) {
+    assert(_view != null);
     assert(_editBar != null);
+    assert(_messageTemplate != null);
+    assert(_emojiSelectorController != null);
 
     this._view.querySelector(".show-emojis").addEventListener("click", (e) async {
-      this._ds.bot.guilds.forEach((snowflake, guild) {
-        guild.emojis.forEach((snowflake, guildEmoji) {
-          print(guildEmoji);
-          // TOOD: Show emoji's
-        });
-      });
-    });
-
-    this._ds.bot.onGuildEmojisUpdate.listen((discord.GuildEmojisUpdateEvent e) {
-      print(e);
-      // TOOD: Update emoji's
+      if (this._emojiSelectorController.view.style.display == 'none') {
+        this._emojiSelectorController.view.style.display = '';
+      } else {
+        this._emojiSelectorController.view.style.display = 'none';
+      }
     });
   }
 
-  DiscordShellBot get ds {
-    return _ds;
-  }
+  DiscordShellBot get ds => this._ds;
 
-  DivElement view() {
-    return this._view;
-  }
+  DivElement get view => this._view;
 
-  DivElement messages() {
-    return this._messages;
-  }
+  DivElement get messages => this._messages;
 
-  DivElement editBar() {
-    return this._editBar;
-  }
+  DivElement get editBar => this._editBar;
 
-  NodeValidator nodeValidator() {
-    return this._nodeValidator;
-  }
+  NodeValidator get nodeValidator => this._nodeValidator;
 
-  discord.Message editMsg() {
-    return _editMsg;
-  }
-
-  discord.Message setEditMsg(discord.Message message) {
-    return this._editMsg = message;
-  }
+  discord.Message get editMsg => this._editMsg;
 
   addMessage(discord.Message msg, bool top){
     DocumentFragment msgFragment = document.importNode(_messageTemplate.content, true);
@@ -134,11 +117,22 @@ abstract class ChatController {
 
     if(msg.attachments != null) {
       msg.attachments.forEach((s, attachment) {
-        /// XXX: A false assumption is here that all attachments are images.
-        ImageElement image = new ImageElement(src: attachment.url, width: attachment.width, height: attachment.height);
-        image.style.maxWidth = "100%";
-        image.style.height = "auto";
-        content.append(image);
+        DocumentFragment attachmentFragment = document.importNode(_attachmentTemplate.content, true);
+        AnchorElement anchor = attachmentFragment.querySelector('a');
+        ImageElement img = attachmentFragment.querySelector('img');
+        anchor.href = attachment.url;
+        if(attachment.filename.contains('.')) {
+          final extension = attachment.filename.split('.').last;
+          if(['svg', 'tiff', 'gif', 'jpg', 'jpeg', 'png', 'webp'].contains(extension.toLowerCase())) {
+            img.src = attachment.url;
+            img.className = "attachment-image attachment-image-preview";
+          } else {
+            img.src = 'https://mimetypeicons.gq/'+extension+'?size=scalable';
+            img.className = "attachment-image attachment-image-unpreviewable";
+          }
+        }
+
+        content.append(attachmentFragment);
       });
     }
 
@@ -159,6 +153,7 @@ abstract class ChatController {
   }
 
   Future<Null> destroy() async {
+    await this._emojiSelectorController.destroy();
     return null;
   }
 }

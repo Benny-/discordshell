@@ -229,3 +229,17 @@ bot-tag{
   margin-top: 0.1em;
   margin-bottom: 0.1em;
 }
+
+img.attachment-image {
+
+}
+
+img.attachment-image-preview {
+  max-width: 100%;
+  height: auto;
+}
+
+img.attachment-image-unpreviewable {
+  width: 2em;
+  height: 2em;
+}

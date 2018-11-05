@@ -67,6 +67,7 @@ import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
 import './ChatController.dart';
 import './UserTimer.dart';
+import './EmojiSelectorController.dart';
 
 class DMChatController extends ChatController {
   final discord.DMChannel _channel;
@@ -99,7 +100,9 @@ class DMChatController extends ChatController {
               view.querySelector(".chat-messages"),
               view.querySelector(".profile-bar"),
               view.querySelector(".editbarbox"),
-              view.querySelector("template[name=message-template]")
+              view.querySelector("template[name=message-template]"),
+              view.querySelector("template[name=message-attachment]"),
+              new EmojiSelectorController(_ds, view.querySelector('.emojis-selector'))
         )
   {
     assert(_usersList != null);
@@ -145,17 +148,17 @@ class DMChatController extends ChatController {
           break;
       }
     }
-    this.editBar().style.display = 'none';
+    this.editBar.style.display = 'none';
     _profileBar.style.display = 'none';
-    this.editBar().children[0].addEventListener('click', (e){
-      this.editMsg().delete();
-      this.editBar().style.display='none';
+    this.editBar.children[0].addEventListener('click', (e){
+      this.editMsg.delete();
+      this.editBar.style.display='none';
     });
-    this.editBar().children[1].addEventListener('click', (e){
-      _textArea.value = this.editMsg().content;
+    this.editBar.children[1].addEventListener('click', (e){
+      _textArea.value = this.editMsg.content;
       _textArea.focus();
       _editMod = true;
-      this.editBar().style.display='none';
+      this.editBar.style.display='none';
     });
     const oneSec = const Duration(seconds: 1);
     new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
@@ -180,17 +183,17 @@ class DMChatController extends ChatController {
 
     this.ds.bot.onMessageDelete.listen((message) {
       if (message.message.channel.id == _channel.id) {
-        DivElement msgElement = this.messages().querySelector("[title='" + message.message.id.id + "']");
+        DivElement msgElement = this.messages.querySelector("[title='" + message.message.id.id + "']");
         msgElement.parent.remove();
       }
     });
 
     this.ds.bot.onMessageUpdate.listen((message) {
       if (message.newMessage.channel.id == _channel.id) {
-        DivElement msgElement = this.messages().querySelector("[title='" + message.oldMessage.id.id + "']");
+        DivElement msgElement = this.messages.querySelector("[title='" + message.oldMessage.id.id + "']");
         msgElement.innerHtml = markdownToHtml(message.newMessage.content);
         msgElement.title = message.newMessage.id.id;
-        if (!this.nodeValidator().allowsElement(msgElement)) {
+        if (!this.nodeValidator.allowsElement(msgElement)) {
           msgElement.parent.style.backgroundColor = "red";
           msgElement.text =
           "<<Remote code execution protection has prevented this message from being displayed>>";
@@ -204,7 +207,7 @@ class DMChatController extends ChatController {
     this.ds.bot.onMessage.listen((discord.MessageEvent e) {
       assert(e.message.channel != null);
       if (e.message.channel.id == this._channel.id) {
-        if (this.view().parent.style.display == "none")
+        if (this.view.parent.style.display == "none")
           this._titleContainer.style.color = "Red";
         this.addMessage(e.message, false);
         _typingUsers.forEach((f) {
@@ -234,9 +237,9 @@ class DMChatController extends ChatController {
     _profileBar.querySelector(".profile-info").style.borderTop = "2px solid grey";
     _profileBar.querySelector(".profile-right").innerHtml = ucreate;
     _profileBar.querySelectorAll(".profile-right")[1].innerHtml = _profile.id.id;
-    ButtonElement historyButton = this.view().querySelector(".more-messages");
+    ButtonElement historyButton = this.view.querySelector(".more-messages");
     historyButton.addEventListener('click', (e) {
-      final discord.Snowflake snowflake = new discord.Snowflake(this.messages().querySelector(".content").title);
+      final discord.Snowflake snowflake = new discord.Snowflake(this.messages.querySelector(".content").title);
       _channel
           .getMessages(before: snowflake)
           .then((message) {
@@ -259,17 +262,17 @@ class DMChatController extends ChatController {
       });
     });
 
-    ButtonElement chatButton = this.view().querySelector("button.chat");
+    ButtonElement chatButton = this.view.querySelector("button.chat");
     chatButton.addEventListener('click', (e) {
       String text = this._textArea.value;
       if (text.length > 0) {
         if (_editMod==true){
-          if (text!=this.editMsg().content)
-            this.editMsg().edit(content: text);
+          if (text!=this.editMsg.content)
+            this.editMsg.edit(content: text);
           _editMod = false;
         }else{
           _channel.send(content: text);
-          this.messages().scrollTo(0,this.messages().scrollHeight);
+          this.messages.scrollTo(0,this.messages.scrollHeight);
         }
       }
       this._textArea.value = '';
@@ -302,7 +305,7 @@ class DMChatController extends ChatController {
     });
 
     _channel.getMessages().then((messages) {
-      for(DivElement msg in this.messages().querySelectorAll(".message"))
+      for(DivElement msg in this.messages.querySelectorAll(".message"))
       {
         msg.remove();
       }

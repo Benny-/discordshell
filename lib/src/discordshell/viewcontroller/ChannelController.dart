@@ -32,8 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:async';
 import 'dart:html';
 import 'package:nyxx/nyxx.dart' as discord;
-import './model/DiscordShellBot.dart';
-import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
+import '../model/DiscordShellBot.dart';
+import '../events/OpenTextChannelRequestEvent.dart';
 
 class ChannelController {
   final DiscordShellBot _ds;

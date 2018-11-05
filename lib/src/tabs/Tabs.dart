@@ -33,7 +33,7 @@ import 'dart:html';
 import 'dart:async';
 import 'dart:js' as js;
 import 'dart:math';
-import './NewTabRequestEvent.dart';
+import './events/NewTabRequestEvent.dart';
 import './Tab.dart';
 
 class Tabs {

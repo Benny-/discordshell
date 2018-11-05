@@ -33,11 +33,10 @@ import 'dart:html';
 import 'dart:async';
 import 'package:nyxx/nyxx.dart' as discord;
 import 'package:markdown/markdown.dart';
-import '../model/DiscordShellBot.dart';
-import 'package:discordshell/src/events/OpenDMChannelRequestEvent.dart';
+import '../../model/DiscordShellBot.dart';
+import '../../events/OpenDMChannelRequestEvent.dart';
 import './ChatController.dart';
-import './UserTimer.dart';
-import './EmojiSelectorController.dart';
+import '../../model/UserTimer.dart';
 
 class TextChannelChatController extends ChatController {
   final discord.TextChannel _channel;
@@ -75,8 +74,7 @@ class TextChannelChatController extends ChatController {
               view.querySelector(".profile-bar"),
               view.querySelector(".editbarbox"),
               view.querySelector("template[name=message-template]"),
-              view.querySelector("template[name=message-attachment]"),
-              new EmojiSelectorController(_ds, view.querySelector('.emojis-selector'))
+              view.querySelector("template[name=message-attachment]")
         )
   {
     assert(_usersList != null);

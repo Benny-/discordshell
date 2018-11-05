@@ -29,41 +29,10 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'dart:html';
-import 'dart:async';
-import 'package:nyxx/nyxx.dart' as discord;
-import 'package:markdown/markdown.dart';
 import '../model/DiscordShellBot.dart';
-import './ChatController.dart';
-import './UserTimer.dart';
 
-class EmojiSelectorController {
-  final DiscordShellBot _ds;
-  final DivElement _view;
+class NewDiscordShellEvent {
+  DiscordShellBot discordShell;
 
-  EmojiSelectorController(this._ds, this._view) {
-    assert(_ds != null);
-    assert(_view != null);
-
-    this._view.text = "Emoji's will appear here!~";
-
-    this._ds.bot.guilds.forEach((snowflake, guild) {
-      guild.emojis.forEach((snowflake, guildEmoji) {
-        print(guildEmoji);
-        // TOOD: Show emoji's
-      });
-    });
-
-    this._ds.bot.onGuildEmojisUpdate.listen((discord.GuildEmojisUpdateEvent e) {
-      print(e);
-      // TOOD: Update emoji's
-    });
-  }
-
-  Future<Null> destroy() async {
-    return null;
-  }
-
-  DivElement get view => this._view;
-
+  NewDiscordShellEvent(this.discordShell);
 }

@@ -33,8 +33,8 @@ import 'dart:html';
 import 'dart:async';
 import 'package:nyxx/nyxx.dart' as discord;
 import 'package:markdown/markdown.dart';
-import '../model/DiscordShellBot.dart';
-import './EmojiSelectorController.dart';
+import '../../model/DiscordShellBot.dart';
+import '../emoji/EmojiSelectorController.dart';
 
 abstract class ChatController {
   final DiscordShellBot _ds;
@@ -56,8 +56,8 @@ abstract class ChatController {
                 this._profileBar,
                 this._editBar,
                 this._messageTemplate,
-                this._attachmentTemplate,
-                this._emojiSelectorController) {
+                this._attachmentTemplate):
+        this._emojiSelectorController = new EmojiSelectorController(_ds, _view.querySelector('.emojis-selector')){
     assert(_view != null);
     assert(_editBar != null);
     assert(_messageTemplate != null);

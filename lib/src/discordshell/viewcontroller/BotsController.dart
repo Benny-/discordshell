@@ -31,10 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import './model/DiscordShellBot.dart';
-import 'package:discordshell/src/model/DiscordShellBotCollection.dart';
-import './BotController.dart';
-import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
+import '../model/DiscordShellBot.dart';
+import '../model/DiscordShellBotCollection.dart';
+import '../viewcontroller/BotController.dart';
+import '../events/OpenTextChannelRequestEvent.dart';
 
 class BotsController {
   final DiscordShellBotCollection _dsCollection;

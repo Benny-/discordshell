@@ -29,46 +29,17 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'package:json_annotation/json_annotation.dart';
-import 'package:discordshell/src/events/AppSettingsChangedEvent.dart';
-import 'dart:async';
 
-part 'AppSettings.g.dart';
+import 'package:nyxx/nyxx.dart' as discord;
 
-@JsonSerializable(nullable: false)
-class AppSettings {
+/**
+ * This class is used to display the message about who is typing at the moment.
+ */
+class UserTimer {
+  final String name;
+  num count;
+  final discord.Snowflake id;
 
-  bool enableNotifications = true;
-  bool desktopNotifications = false;
-  bool enableOpenTabNotifications = true;
-  bool enableOpenTabMentionNotifications = false;
-  bool enableMentionNotifications = true;
-
-  final StreamController<AppSettingsChangedEvent> _onAppSettingsChangedEventStreamController;
-  final Stream<AppSettingsChangedEvent> onAppSettingsChangedEvent;
-
-  AppSettings._internal(this._onAppSettingsChangedEventStreamController, this.onAppSettingsChangedEvent) {
-
-  }
-
-  factory AppSettings () {
-
-    StreamController<AppSettingsChangedEvent> streamController = new StreamController<AppSettingsChangedEvent>.broadcast();
-    Stream<AppSettingsChangedEvent> stream = streamController.stream;
-
-    return new AppSettings._internal(streamController, stream);
-  }
-
-  factory AppSettings.fromJson(Map<String, dynamic> json) => _$AppSettingsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$AppSettingsToJson(this);
-
-  notifyChangeListeners() {
-    return this._onAppSettingsChangedEventStreamController.add(new AppSettingsChangedEvent(this));
-  }
-
-  Future<Null> destroy() async {
-    await this._onAppSettingsChangedEventStreamController.close();
-    return null;
+  UserTimer(this.name, this.count, this.id) {
   }
 }

@@ -29,10 +29,28 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import './Tabs.dart';
+import 'dart:html';
+import 'dart:async';
+import './ChatController.dart';
+import '../../model/DiscordShellBot.dart';
 
-class NewTabRequestEvent {
-  Tabs tabs;
+class GroupDMChatController extends ChatController {
 
-  NewTabRequestEvent(this.tabs);
+  GroupDMChatController(DiscordShellBot _ds, NodeValidator nodeValidator):
+        super(_ds,
+          nodeValidator,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ) {
+    throw new UnimplementedError();
+  }
+
+  Future<Null> destroy() async {
+    return await super.destroy();
+  }
+
 }

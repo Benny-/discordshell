@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
 import 'dart:async';
-import './SelectEvent.dart';
-import './CloseEvent.dart';
+import './events/SelectEvent.dart';
+import './events/CloseEvent.dart';
 
 class Tab {
 

@@ -32,9 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:html';
 import 'dart:async';
 import 'package:nyxx/nyxx.dart' as discord;
-import './model/DiscordShellBot.dart';
-import './GuildController.dart';
-import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
+import '../model/DiscordShellBot.dart';
+import '../viewcontroller/GuildController.dart';
+import '../events/OpenTextChannelRequestEvent.dart';
 
 class BotController {
   final DiscordShellBot _ds;

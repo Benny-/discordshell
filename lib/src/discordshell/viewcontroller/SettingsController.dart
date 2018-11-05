@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:async';
 import 'dart:html';
-import './model/AppSettings.dart';
-import 'package:discordshell/src/events/AppSettingsChangedEvent.dart';
+import '../model/AppSettings.dart';
+import '../events/AppSettingsChangedEvent.dart';
 
 class SettingsController {
   final AppSettings _appSettings;

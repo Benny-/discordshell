@@ -39,15 +39,15 @@ import 'package:discordshell/src/notifications/NotificationArea.dart';
 import 'package:discordshell/src/notifications/NotificationPopup.dart';
 import 'package:discordshell/src/tabs/Tabs.dart';
 import 'package:discordshell/src/tabs/Tab.dart';
-import 'package:discordshell/src/model/AppSettings.dart';
-import 'package:discordshell/src/model/DiscordShellBotCollection.dart';
-import 'package:discordshell/src/model/DiscordShellBot.dart';
-import 'package:discordshell/src/events/OpenTextChannelRequestEvent.dart';
-import 'package:discordshell/src/events/OpenDMChannelRequestEvent.dart';
-import 'package:discordshell/src/BotsController.dart';
-import 'package:discordshell/src/chat/TextChannelChatController.dart';
-import 'package:discordshell/src/chat/DMChatController.dart';
-import 'package:discordshell/src/SettingsController.dart';
+import 'package:discordshell/src/discordshell/model/AppSettings.dart';
+import 'package:discordshell/src/discordshell/model/DiscordShellBotCollection.dart';
+import 'package:discordshell/src/discordshell/model/DiscordShellBot.dart';
+import 'package:discordshell/src/discordshell/events/OpenTextChannelRequestEvent.dart';
+import 'package:discordshell/src/discordshell/events/OpenDMChannelRequestEvent.dart';
+import 'package:discordshell/src/discordshell/viewcontroller/BotsController.dart';
+import 'package:discordshell/src/discordshell/viewcontroller/chat/TextChannelChatController.dart';
+import 'package:discordshell/src/discordshell/viewcontroller/chat/DMChatController.dart';
+import 'package:discordshell/src/discordshell/viewcontroller/SettingsController.dart';
 
 AppSettings loadSettings() {
   final String settingsStr = window.localStorage['settings'];

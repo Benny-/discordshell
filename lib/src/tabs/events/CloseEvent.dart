@@ -29,10 +29,10 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'package:discordshell/src/model/DiscordShellBot.dart';
+import '../Tab.dart';
 
-class NewDiscordShellEvent {
-  DiscordShellBot discordShell;
+class CloseEvent {
+  Tab tab;
 
-  NewDiscordShellEvent(this.discordShell);
+  CloseEvent(this.tab);
 }

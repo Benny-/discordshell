@@ -33,34 +33,65 @@ import 'dart:html';
 import 'dart:async';
 import 'package:nyxx/nyxx.dart' as discord;
 import '../../model/DiscordShellBot.dart';
+import '../../events/EmojiSelectionEvent.dart';
+import './EmojiController.dart';
 
 class EmojiSelectorController {
   final DiscordShellBot _ds;
   final DivElement _view;
 
-  EmojiSelectorController(this._ds, this._view) {
+  final StreamController<EmojiSelectionEvent> _onEmojiSelectionEventStreamController;
+  final Stream<EmojiSelectionEvent> onEmojiSelectionEvent;
+
+  final TemplateElement _emojiTemplate;
+  final List<EmojiController> _emojis = new List();
+  EmojiSelectorController._internal(this._ds, this._view, this._onEmojiSelectionEventStreamController, this.onEmojiSelectionEvent):
+        _emojiTemplate = _view.querySelector("template[name=emoji]") {
     assert(_ds != null);
     assert(_view != null);
+    assert(_emojiTemplate != null);
 
-    this._view.text = "Emoji's will appear here!~";
-
-    this._ds.bot.guilds.forEach((snowflake, guild) {
-      guild.emojis.forEach((snowflake, guildEmoji) {
-        print(guildEmoji);
-        // TOOD: Show emoji's
-      });
-    });
-
+    this._rebuildEmojis();
     this._ds.bot.onGuildEmojisUpdate.listen((discord.GuildEmojisUpdateEvent e) {
-      print(e);
-      // TOOD: Update emoji's
+      this._rebuildEmojis();
     });
   }
 
-  Future<Null> destroy() async {
-    return null;
+  factory EmojiSelectorController(DiscordShellBot _ds, DivElement _view) {
+    StreamController<EmojiSelectionEvent> streamController = new StreamController<EmojiSelectionEvent>.broadcast();
+    Stream<EmojiSelectionEvent> stream = streamController.stream;
+    return EmojiSelectorController._internal(_ds, _view, streamController, stream);
   }
 
   DivElement get view => this._view;
 
+  _rebuildEmojis() {
+
+    for(EmojiController e in this._emojis) {
+      e.view.remove();
+      e.destroy();
+    }
+    _emojis.clear();
+
+    this._ds.bot.guilds.forEach((snowflake, guild) {
+      guild.emojis.forEach((snowflake, guildEmoji) {
+        DocumentFragment fragment = document.importNode(_emojiTemplate.content, true);
+        ImageElement image = fragment.querySelector('img');
+        this._view.append(image);
+        final EmojiController emojiController = new EmojiController(guildEmoji, image);
+        emojiController.onEmojiSelectionEvent.listen((e) {
+          this._onEmojiSelectionEventStreamController.add(e);
+        });
+        this._emojis.add(emojiController);
+      });
+    });
+  }
+
+  Future<Null> destroy() async {
+    await this._onEmojiSelectionEventStreamController.close();
+    for(EmojiController e in this._emojis) {
+      await e.destroy();
+    }
+    return null;
+  }
 }

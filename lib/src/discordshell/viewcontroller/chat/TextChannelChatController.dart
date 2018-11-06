@@ -53,6 +53,7 @@ class TextChannelChatController extends ChatController {
   final DivElement _usersList;
   final DivElement _typing;
   bool _typingBusy = false;
+  Timer _timer;
 
   TextChannelChatController._internal (
       DiscordShellBot _ds,
@@ -139,8 +140,10 @@ class TextChannelChatController extends ChatController {
       _editMod = true;
       this.editBar.style.display='none';
     });
+
     const oneSec = const Duration(seconds: 1);
-    new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
+    _timer = new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
+
     this.ds.bot.onTyping.listen((typer) {
       if (_channel == null ||
           typer.user.id == this.ds.bot.self.id ||
@@ -179,6 +182,7 @@ class TextChannelChatController extends ChatController {
         }
       }
     });
+
     _profileBar.querySelector(".profile-name-tag").children[0].addEventListener('click', (e){
       if(!_profile.bot) {
         _profileBar.style.display = "none";
@@ -188,10 +192,12 @@ class TextChannelChatController extends ChatController {
         });
       }
     });
+
     this._titleContainer.addEventListener('click', (e){
       this._titleContainer.style.color = "";
       _textArea.focus();
     });
+
     this.ds.bot.onMessage.listen((discord.MessageEvent e) {
       assert(e.message.channel != null);
       if (e.message.channel == this._channel) {
@@ -401,6 +407,7 @@ class TextChannelChatController extends ChatController {
   }
 
   Future<Null> destroy() async {
+    this._timer.cancel();
     await this._onOpenDMChannelRequestEventStreamController.close();
     return await super.destroy();
   }

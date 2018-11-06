@@ -70,6 +70,10 @@ abstract class ChatController {
         this._emojiSelectorController.view.style.display = 'none';
       }
     });
+
+    this._emojiSelectorController.onEmojiSelectionEvent.listen((e) {
+
+    });
   }
 
   DiscordShellBot get ds => this._ds;

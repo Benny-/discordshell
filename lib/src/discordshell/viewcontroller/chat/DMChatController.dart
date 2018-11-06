@@ -82,6 +82,7 @@ class DMChatController extends ChatController {
   final DivElement _usersList;
   final DivElement _typing;
   bool _typingBusy = false;
+  Timer _timer;
 
   DMChatController._internal(
       DiscordShellBot _ds,
@@ -159,8 +160,10 @@ class DMChatController extends ChatController {
       _editMod = true;
       this.editBar.style.display='none';
     });
+
     const oneSec = const Duration(seconds: 1);
-    new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
+    _timer = new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
+
     this.ds.bot.onTyping.listen((typer) {
       if (_channel == null ||
           typer.user.id == this.ds.bot.self.id ||
@@ -298,9 +301,6 @@ class DMChatController extends ChatController {
           }
         });
       }
-      if (_channel == null) {
-        return;
-      }
     });
 
     _channel.getMessages().then((messages) {
@@ -347,6 +347,7 @@ class DMChatController extends ChatController {
   }
 
   Future<Null> destroy() async {
+    this._timer.cancel();
     return await super.destroy();
   }
 }

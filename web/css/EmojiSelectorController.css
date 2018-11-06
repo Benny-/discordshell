@@ -29,12 +29,12 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'package:nyxx/nyxx.dart' as discord;
 
-class EmojiSelectionEvent {
-  final discord.GuildEmoji _emoji;
-
-  EmojiSelectionEvent(this._emoji);
-
-  discord.Emoji get emoji => this._emoji;
+div.emojis-selector {
+  border-color: black;
+  border-width: 1px;
+  border-style: solid;
+  min-height: 9em;
+  max-height: 9em;
+  overflow: auto;
 }

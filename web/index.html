@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="css/GuildController.css">
   <link rel="stylesheet" href="css/ChannelController.css">
   <link rel="stylesheet" href="css/ChatController.css">
+  <link rel="stylesheet" href="css/EmojiController.css">
+  <link rel="stylesheet" href="css/EmojiSelectorController.css">
   <link rel="stylesheet" href="css/SettingsController.css">
   <link rel="stylesheet" href="css/Tabs.css">
   <link rel="stylesheet" href="css/index.css">
@@ -157,7 +159,11 @@
         </div>
       </div>
       <div class="typing"></div>
-      <div class="emojis-selector" style="display: none"></div>
+      <div class="emojis-selector" style="display: none">
+        <template name="emoji">
+          <img class="emoji emoji-selectable" src="images/robocord.png">
+        </template>
+      </div>
       <div class="chat-controls">
         <form>
           <textarea title="Discord markdown supported chat"></textarea>

@@ -207,7 +207,7 @@ void main() {
 
   appSettings.onAppSettingsChangedEvent.listen((e) {
     requestNotificationPermissionIfNeeded(e.appSettings);
-    window.localStorage['settings'] = e.appSettings.toJson().toString();
+    window.localStorage['settings'] = jsonEncode(e.appSettings.toJson());
   });
 }
 

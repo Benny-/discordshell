@@ -29,36 +29,38 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-import 'dart:html';
-import 'dart:async';
-import './MessageChannelController.dart';
-import '../../model/DiscordShellBot.dart';
-import 'package:nyxx/nyxx.dart' as discord;
 
-class GroupDMChatController extends MessageChannelController {
+.message {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
 
-  final discord.GroupDMChannel _channel;
+.message > .user-name {
+  max-width: 12em;
+  height: 100%;
+  display: inline-block;
+  color: #3eb522;
+}
 
-  GroupDMChatController(DiscordShellBot _ds, NodeValidator nodeValidator):
-        super(_ds,
-          nodeValidator,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        ) {
-    throw new UnimplementedError();
-  }
+.message > .content {
+  display: inline-block;
+}
 
-  discord.GroupDMChannel get channel => this._channel;
+.message > .content > p {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
 
-  Future<Null> destroy() async {
-    return await super.destroy();
-  }
+img.attachment-image {
 
+}
+
+img.attachment-image-preview {
+  max-width: 100%;
+  height: auto;
+}
+
+img.attachment-image-unpreviewable {
+  width: 2em;
+  height: 2em;
 }

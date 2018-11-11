@@ -32,55 +32,47 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import 'dart:html';
 import 'dart:async';
 import 'package:nyxx/nyxx.dart' as discord;
-import 'package:markdown/markdown.dart';
 import '../../model/DiscordShellBot.dart';
 import '../../events/OpenDMChannelRequestEvent.dart';
-import './ChatController.dart';
-import '../../model/UserTimer.dart';
+import './MessageChannelController.dart';
 
-class TextChannelChatController extends ChatController {
+class TextChannelChatController extends MessageChannelController {
   final discord.TextChannel _channel;
-  final HtmlElement _titleContainer;
+
   final StreamController<OpenDMChannelRequestEvent> _onOpenDMChannelRequestEventStreamController;
   final Stream<OpenDMChannelRequestEvent> onOpenDMChannelRequestEvent;
 
   final DivElement _profileBar;
   discord.Member _profile;
-  bool _editMod = false;
-  final TextAreaElement _textArea;
   final TemplateElement _userTemplate;
-  final List<UserTimer> _typingUsers = new List<UserTimer>();
   final DivElement _usersList;
-  final DivElement _typing;
-  bool _typingBusy = false;
-  Timer _timer;
 
   TextChannelChatController._internal (
       DiscordShellBot _ds,
       this._channel,
-      this._titleContainer,
+      HtmlElement _titleContainer,
       DivElement view,
       this._onOpenDMChannelRequestEventStreamController,
       this.onOpenDMChannelRequestEvent,
       NodeValidator nodeValidator)
       : _profileBar = view.querySelector(".profile-bar"),
         _usersList = view.querySelector(".users-list"),
-        _textArea = view.querySelector("textarea"),
-        _typing = view.querySelector(".typing"),
         _userTemplate = view.querySelector("template[name=user-template]"),
         super(_ds,
               nodeValidator,
+              _titleContainer,
               view,
               view.querySelector(".chat-messages"),
+              view.querySelector("textarea"),
+              view.querySelector(".typing"),
               view.querySelector(".profile-bar"),
               view.querySelector(".editbarbox"),
               view.querySelector("template[name=message-template]"),
               view.querySelector("template[name=message-attachment]")
         )
   {
+    assert(_channel != null);
     assert(_usersList != null);
-    assert(_textArea != null);
-    assert(_typing != null);
     assert(_userTemplate != null);
     assert(_profileBar != null);
           
@@ -89,183 +81,17 @@ class TextChannelChatController extends ChatController {
     SpanElement titleText = new SpanElement();
     titleText.text = _channel.name;
 
-    this._titleContainer.append(titleIcon);
-    this._titleContainer.appendText(' ');
-    this._titleContainer.append(titleText);
+    this.titleContainer.append(titleIcon);
+    this.titleContainer.appendText(' ');
+    this.titleContainer.append(titleText);
 
-    typingListUpdate() {
-      _typing.innerHtml = "";
-      List<UserTimer> removeList = new List<UserTimer>();
-      _typingUsers.forEach((f) {
-        if (f.count <= 0) {
-          removeList.add(f);
-        } else {
-          f.count -= 1;
-          _typing.innerHtml += f.name + ", ";
-        }
-      });
-      removeList.forEach((f) {
-        _typingUsers.remove(f);
-      });
-      removeList.clear();
-      switch (_typingUsers.length) {
-        case 0:
-          break;
-        case 1:
-          _typing.innerHtml =
-              _typing.innerHtml.substring(0, _typing.innerHtml.length - 2) +
-                  " is typing...";
-          break;
-        case 2:
-        case 3:
-        case 4:
-          _typing.innerHtml =
-              _typing.innerHtml.substring(0, _typing.innerHtml.length - 2) +
-                  " are typing...";
-          break;
-        default:
-          _typing.innerHtml = "Several people are typing";
-          break;
-      }
-    }
-    this.editBar.style.display = 'none';
-    _profileBar.style.display = 'none';
-    this.editBar.children[0].addEventListener('click', (e){
-      this.editMsg.delete();
-      this.editBar.style.display='none';
-    });
-    this.editBar.children[1].addEventListener('click', (e){
-      _textArea.value = this.editMsg.content;
-      _textArea.focus();
-      _editMod = true;
-      this.editBar.style.display='none';
-    });
-
-    const oneSec = const Duration(seconds: 1);
-    _timer = new Timer.periodic(oneSec, (Timer t) => typingListUpdate());
-
-    this.ds.bot.onTyping.listen((typer) {
-      if (_channel == null ||
-          typer.user.id == this.ds.bot.self.id ||
-          typer.channel.id != _channel.id) {
-        return;
-      }
-      UserTimer user = new UserTimer(typer.user.username, 8, typer.user.id);
-      bool found = false;
-      _typingUsers.forEach((userTimer) {
-        if (userTimer.name == user.name) {
-          userTimer.count = 8;
-          found = true;
-        }
-      });
-      if (!found) {
-        _typingUsers.add(user);
-      }
-    });
-
-    this.ds.bot.onMessageDelete.listen((message) {
-      if (message.message.channel.id == _channel.id) {
-        DivElement msgelement = messages.querySelector("[title='" + message.message.id.id + "']");
-        msgelement.parent.remove();
-      }
-    });
-
-    this.ds.bot.onMessageUpdate.listen((message) {
-      if (message.newMessage.channel.id == _channel.id) {
-        DivElement msgElement = messages.querySelector("[title='" + message.oldMessage.id.id + "']");
-        msgElement.innerHtml = markdownToHtml(message.newMessage.content);
-        msgElement.title = message.newMessage.id.id;
-        if (!this.nodeValidator.allowsElement(msgElement)) {
-          msgElement.parent.style.backgroundColor = "red";
-          msgElement.text =
-              "<<Remote code execution protection has prevented this message from being displayed>>";
-        }
-      }
-    });
-
+    _profileBar.style.position = "absolute";
     _profileBar.querySelector(".profile-name-tag").children[0].addEventListener('click', (e){
       if(!_profile.bot) {
         _profileBar.style.display = "none";
         _profile.dmChannel.then((k){
           OpenDMChannelRequestEvent e = new OpenDMChannelRequestEvent(this.ds, k);
           _onOpenDMChannelRequestEventStreamController.add(e);
-        });
-      }
-    });
-
-    this._titleContainer.addEventListener('click', (e){
-      this._titleContainer.style.color = "";
-      _textArea.focus();
-    });
-
-    this.ds.bot.onMessage.listen((discord.MessageEvent e) {
-      assert(e.message.channel != null);
-      if (e.message.channel == this._channel) {
-        if (this.view.parent.style.display == "none")
-          this._titleContainer.style.color = e.message.content.contains("<@"+_ds.bot.self.id.id+">") ? "Red" : "Orange";
-        this.addMessage(e.message, false);
-        _typingUsers.forEach((f) {
-          if (f.id == e.message.author.id) {
-            f.count = 0;
-            return;
-          }
-        });
-      } else {
-        assert(this._channel == null ||
-            (e.message.channel.id != this._channel.id));
-      }
-    });
-
-    ButtonElement historyButton = this.view.querySelector(".more-messages");
-    historyButton.addEventListener('click', (e) {
-      final discord.Snowflake snowflake = new discord.Snowflake(messages.querySelector(".content").title);
-      _channel
-          .getMessages(before: snowflake)
-          .then((message) {
-        List<discord.Message> list = new List<discord.Message>();
-
-        for (final msg in message.values) {
-          list.add(msg);
-        }
-
-        list.sort((a, b) {
-          return a.id.compareTo(b.id);
-        });
-
-        list.reversed.forEach((msg) {
-          this.addMessage(msg, true);
-        });
-      }).catchError((e) {
-        print(e);
-        throw e;
-      });
-    });
-
-    ButtonElement chatButton = this.view.querySelector("button.chat");
-    chatButton.addEventListener('click', (e) {
-      String text = this._textArea.value;
-      if (text.length > 0) {
-        if (_editMod==true){
-          if (text!=editMsg.content)
-            editMsg.edit(content: text);
-          _editMod = false;
-        }else{
-          _channel.send(content: text);
-          messages.scrollTo(0,messages.scrollHeight);
-        }
-      }
-      this._textArea.value = '';
-      chatButton.disabled = true;
-      e.preventDefault();
-    });
-
-    chatButton.disabled = true;
-    this._textArea.addEventListener('input', (e) {
-      chatButton.disabled = this._textArea.value.length == 0;
-      if (this._textArea.value.length != 0 && !this._typingBusy) {
-        this._typingBusy = true;
-        this._channel.startTyping().then((result) {
-          this._typingBusy = false;
         });
       }
     });
@@ -280,9 +106,6 @@ class TextChannelChatController extends ChatController {
           }
         });
       }
-      if (_channel == null) {
-        return;
-      }
       if (e.member.guild == _channel.guild) {
         HtmlElement avatar = _usersList.querySelector("[title='" + e.member.id.id + "']");
         ImageElement picture = avatar.parent.querySelector("img");
@@ -294,32 +117,10 @@ class TextChannelChatController extends ChatController {
       }
     });
 
-    _channel.getMessages().then((messages) {
-      for(DivElement msg in this.messages.querySelectorAll(".message"))
-      {
-        msg.remove();
-      }
-
-      for (final user in _channel.guild.members.values) //put users into list
-      {
-        this.addUser(user); //add users from object list to display list
-      }
-
-      List<discord.Message> list = new List<discord.Message>();
-
-      for (final msg in messages.values)
-      {
-        list.add(msg);
-      }
-
-      list.sort((a, b) {
-        return a.id.compareTo(b.id);
-      });
-
-      list.forEach((msg) {
-        this.addMessage(msg, false);
-      });
-    });
+    for(discord.Member member in this._channel.guild.members.values) {
+      // TODO: Restrict the list of members to who can see this channel
+      this._addMember(member);
+    }
   }
 
   factory TextChannelChatController(
@@ -346,7 +147,9 @@ class TextChannelChatController extends ChatController {
     );
   }
 
-  addUser(discord.Member user) {
+  discord.TextChannel get channel => this._channel;
+
+  _addMember(discord.Member user) {
     DocumentFragment userFragment = document.importNode(_userTemplate.content, true);
     DivElement userItem = userFragment.querySelector(".user-item");
     ImageElement avatar = userFragment.querySelector("img.avatar");
@@ -407,7 +210,6 @@ class TextChannelChatController extends ChatController {
   }
 
   Future<Null> destroy() async {
-    this._timer.cancel();
     await this._onOpenDMChannelRequestEventStreamController.close();
     return await super.destroy();
   }

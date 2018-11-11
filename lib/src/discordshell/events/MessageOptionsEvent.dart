@@ -30,35 +30,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import 'dart:html';
-import 'dart:async';
-import './MessageChannelController.dart';
-import '../../model/DiscordShellBot.dart';
 import 'package:nyxx/nyxx.dart' as discord;
 
-class GroupDMChatController extends MessageChannelController {
+class MessageOptionsEvent {
 
-  final discord.GroupDMChannel _channel;
+  final HtmlElement elm;
+  final discord.Message msg;
 
-  GroupDMChatController(DiscordShellBot _ds, NodeValidator nodeValidator):
-        super(_ds,
-          nodeValidator,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        ) {
-    throw new UnimplementedError();
+  MessageOptionsEvent(this.elm, this.msg) {
+
   }
-
-  discord.GroupDMChannel get channel => this._channel;
-
-  Future<Null> destroy() async {
-    return await super.destroy();
-  }
-
 }

@@ -61,10 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 
 .profile-bar{
-  position: absolute;
   background: #ffffff;
-  width: 12em;
-  height: auto;
   border-radius: 5px;
   border: 2px solid grey;
 }
@@ -207,39 +204,4 @@ bot-tag{
 .more-messages{
   margin:0;
   margin-left: 1em;
-}
-
-.message {
-  margin-top: 0.1em;
-  margin-bottom: 0.1em;
-}
-
-.message > .user-name {
-  max-width: 12em;
-  height: 100%;
-  display: inline-block;
-  color: #3eb522;
-}
-
-.message > .content {
-  display: inline-block;
-}
-
-.message > .content > p {
-  margin-top: 0.1em;
-  margin-bottom: 0.1em;
-}
-
-img.attachment-image {
-
-}
-
-img.attachment-image-preview {
-  max-width: 100%;
-  height: auto;
-}
-
-img.attachment-image-unpreviewable {
-  width: 2em;
-  height: 2em;
 }

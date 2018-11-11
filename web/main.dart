@@ -137,7 +137,7 @@ void main() {
 
   bots.onNewDiscordShell.listen((newDiscordShellEvent) {
     newDiscordShellEvent.discordShell.bot.onMessage.listen((newMessageEvent) {
-
+      assert(newMessageEvent.message != null);
       bool messageInOpenTab = (openedChatTabs[newDiscordShellEvent.discordShell] != null) && (openedChatTabs[newDiscordShellEvent.discordShell][newMessageEvent.message.channel.id] != null);
       bool messageContainsMention = newMessageEvent.message.content.contains("<@"+newDiscordShellEvent.discordShell.bot.self.id.id+">");
       bool isDM = newMessageEvent.message.channel is DMChannel;

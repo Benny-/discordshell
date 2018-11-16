@@ -44,6 +44,10 @@ class EmojiSelectorController {
   final Stream<EmojiSelectionEvent> onEmojiSelectionEvent;
 
   final TemplateElement _emojiTemplate;
+
+  StreamSubscription<discord.GuildEmojisUpdateEvent> _emojiUpdateSubscription;
+  StreamSubscription<discord.GuildCreateEvent> _guildCreateEventSubscription;
+
   final List<EmojiController> _emojis = new List();
   EmojiSelectorController._internal(this._ds, this._view, this._onEmojiSelectionEventStreamController, this.onEmojiSelectionEvent):
         _emojiTemplate = _view.querySelector("template[name=emoji]") {
@@ -52,7 +56,11 @@ class EmojiSelectorController {
     assert(_emojiTemplate != null);
 
     this._rebuildEmojis();
-    this._ds.bot.onGuildEmojisUpdate.listen((discord.GuildEmojisUpdateEvent e) {
+    this._emojiUpdateSubscription = this._ds.bot.onGuildEmojisUpdate.listen((discord.GuildEmojisUpdateEvent e) {
+      this._rebuildEmojis();
+    });
+
+    this._guildCreateEventSubscription = this._ds.bot.onGuildCreate.listen((e) {
       this._rebuildEmojis();
     });
   }
@@ -89,6 +97,8 @@ class EmojiSelectorController {
 
   Future<Null> destroy() async {
     await this._onEmojiSelectionEventStreamController.close();
+    await this._emojiUpdateSubscription.cancel();
+    await this._guildCreateEventSubscription.cancel();
     for(EmojiController e in this._emojis) {
       await e.destroy();
     }

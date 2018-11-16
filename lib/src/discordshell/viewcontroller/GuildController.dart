@@ -50,6 +50,8 @@ class GuildController {
   final StreamController<OpenTextChannelRequestEvent> _onTextChannelRequestEventStreamController;
   final Stream<OpenTextChannelRequestEvent> onTextChannelRequestEvent;
 
+  StreamSubscription<discord.ChannelCreateEvent> _channelCreateSubscription;
+  StreamSubscription<discord.GuildUpdateEvent> _guildUpdateEventSubscription;
   GuildController._internal(this._ds, this._guild, this._view, this._onTextChannelRequestEventStreamController, this.onTextChannelRequestEvent) :
     _image = _view.querySelector('img'),
     _title = _view.querySelector('.guild-title'),
@@ -66,7 +68,7 @@ class GuildController {
         this._createGuildChannel(channel);
     });
 
-    this._ds.bot.onChannelCreate.listen((e) {
+    _channelCreateSubscription = this._ds.bot.onChannelCreate.listen((e) {
       discord.Channel channel = e.channel;
 
       if(channel is discord.TextChannel) {
@@ -78,7 +80,7 @@ class GuildController {
       }
     });
 
-    this._ds.bot.onGuildUpdate.listen((e) {
+    _guildUpdateEventSubscription = this._ds.bot.onGuildUpdate.listen((e) {
       assert(e.oldGuild.id != _guild.id || (e.oldGuild.id == _guild.id && e.oldGuild == _guild));
       if(e.oldGuild == _guild) {
         this._guild = e.newGuild;
@@ -126,6 +128,8 @@ class GuildController {
 
   Future<Null> destroy() async {
     await this._onTextChannelRequestEventStreamController.close();
+    await _channelCreateSubscription.cancel();
+    await _guildUpdateEventSubscription.cancel();
     for(ChannelController controller in this._subControllers) {
       await controller.destroy();
     }

@@ -52,7 +52,7 @@ class DiscordShellBot {
 
   factory DiscordShellBot(String token)
   {
-    final discord.ClientOptions options = new discord.ClientOptions(autoShard: false, forceFetchMembers: false);
+    final discord.ClientOptions options = new discord.ClientOptions(forceFetchMembers: false);
     return new DiscordShellBot.fromBot(token, new discord.Nyxx(token, options: options, ignoreExceptions: false));
   }
 }

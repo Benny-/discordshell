@@ -79,7 +79,7 @@ class TextChannelChatController extends MessageChannelController {
     ImageElement titleIcon = new ImageElement( src: this.ds.bot.self.avatarURL(format: 'png'), width: 128, height: 128);
     titleIcon.className = "user-avatar-tab-header";
     SpanElement titleText = new SpanElement();
-    titleText.text = _channel.name;
+    titleText.text = '#' + _channel.name;
 
     this.titleContainer.append(titleIcon);
     this.titleContainer.appendText(' ');
@@ -150,6 +150,7 @@ class TextChannelChatController extends MessageChannelController {
   discord.TextChannel get channel => this._channel;
 
   _addMember(discord.Member user) {
+    assert(user != null);
     DocumentFragment userFragment = document.importNode(_userTemplate.content, true);
     DivElement userItem = userFragment.querySelector(".user-item");
     ImageElement avatar = userFragment.querySelector("img.avatar");
